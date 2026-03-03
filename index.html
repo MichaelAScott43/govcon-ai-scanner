@@ -1,0 +1,132 @@
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>GovCon Compliance Co-Pilot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 28px; max-width: 980px; }
+    textarea { width: 100%; padding: 12px; font-size: 14px; }
+    button { padding: 10px 14px; font-size: 14px; cursor: pointer; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .muted { color: #555; font-size: 13px; }
+    pre { white-space: pre-wrap; background: #f6f6f6; padding: 14px; border-radius: 8px; }
+    select, input { padding: 8px; }
+    .warn { color: #a35b00; }
+    .err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>AI Procurement Compliance Co-Pilot (GovCon)</h1>
+  <p class="muted">
+    Paste purchasing file notes, subcontract language, supplier quote, PO text, or T&Cs.
+    You’ll get CPSR/DCMA-focused risk flags and next actions.
+  </p>
+
+  <p class="muted warn" id="fileWarn" style="display:none;">
+    You opened this page as a local file (file://). This will break API calls.
+    Open <b>http://localhost:3000</b> instead.
+  </p>
+
+  <div class="row">
+    <label>
+      Review Type:
+      <select id="reviewType">
+        <option value="general">General CPSR Risk Scan</option>
+        <option value="flowdown">Flowdown / Clause Focus</option>
+        <option value="price">Competition / Price Analysis Focus</option>
+        <option value="export">ITAR/EAR Indicators Focus</option>
+      </select>
+    </label>
+
+    <label>
+      Contract Type (optional):
+      <input id="contractType" placeholder="e.g., FFP, T&M, CPFF" />
+    </label>
+
+    <button id="btn" onclick="analyze()">Run Scan</button>
+  </div>
+
+  <br/>
+
+  <textarea id="inputText" rows="16" placeholder="Paste the procurement/subcontract text here..."></textarea>
+
+  <p class="muted" id="status"></p>
+  <pre id="output"></pre>
+
+<script>
+(function warnIfFileProtocol() {
+  if (window.location.protocol === "file:") {
+    document.getElementById("fileWarn").style.display = "block";
+  }
+})();
+
+function getApiUrl() {
+  // Primary: relative path (works when page is served from the same server)
+  // Fallback: if user accidentally opened file://, this will fail — we provide an absolute URL.
+  if (window.location.protocol === "file:") {
+    return "http://localhost:3000/api/analyze";
+  }
+  return "/api/analyze";
+}
+
+async function analyze() {
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+  const output = document.getElementById("output");
+
+  const text = document.getElementById("inputText").value.trim();
+  const reviewType = document.getElementById("reviewType").value;
+  const contractType = document.getElementById("contractType").value.trim();
+
+  output.textContent = "";
+  status.textContent = "";
+
+  if (!text) {
+    output.textContent = "Please paste text to analyze.";
+    return;
+  }
+
+  btn.disabled = true;
+  status.textContent = "Running scan...";
+
+  // Add a timeout so fetch doesn't hang forever
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000); // 60s
+
+  try {
+    const resp = await fetch(getApiUrl(), {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ text, reviewType, contractType }),
+      signal: controller.signal
+    });
+
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      const msg = data?.error || `Request failed (${resp.status}).`;
+      status.textContent = "Error.";
+      status.className = "muted err";
+      output.textContent = msg;
+      return;
+    }
+
+    status.textContent = "Done.";
+    status.className = "muted";
+    output.textContent = data?.result || "No result returned.";
+  } catch (e) {
+    status.textContent = "Error.";
+    status.className = "muted err";
+    output.textContent =
+      (e?.name === "AbortError")
+        ? "Request timed out. Try again with a shorter paste or check server logs."
+        : `Failed to fetch. Make sure your server is running and open http://localhost:3000 (not file://). Details: ${e?.message || e}`;
+  } finally {
+    clearTimeout(timeout);
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
