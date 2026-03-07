@@ -1,199 +1,382 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>GovCon Compliance Co-Pilot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GovCon AI Proposal Scanner</title>
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 28px; max-width: 980px; }
-    textarea { width: 100%; padding: 12px; font-size: 14px; }
-    button { padding: 10px 14px; font-size: 14px; cursor: pointer; }
-    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .muted { color: #555; font-size: 13px; }
-    pre { white-space: pre-wrap; background: #f6f6f6; padding: 14px; border-radius: 8px; }
-    select, input { padding: 8px; }
-    .warn { color: #a35b00; }
-    .err { color: #b00020; }
+    body {
+      font-family: "Arial Narrow", Arial, sans-serif;
+      margin: 0;
+      background-color: #f3f6fa;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 700px;
+      height: 700px;
+      background: url("assets/govcon-logo.png") no-repeat center;
+      background-size: contain;
+      opacity: 0.05;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 50px auto;
+      background: white;
+      padding: 35px;
+      border-radius: 12px;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .header img {
+      height: 52px;
+      width: auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #16324f;
+    }
+
+    .subtitle {
+      color: #5b6775;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .upload-card,
+    .result-card,
+    .input-card {
+      background: #ffffff;
+      border: 1px solid #dbe3ee;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .upload-card h3,
+    .input-card h3,
+    .result-card h3 {
+      margin-top: 0;
+      color: #1d3557;
+    }
+
+    .drop-zone {
+      border: 2px dashed #b8c4d6;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 30px;
+      text-align: center;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .drop-zone.dragover {
+      background: #eaf2ff;
+      border-color: #2563eb;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-size: 14px;
+      color: #334155;
+    }
+
+    select,
+    input,
+    textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #d0d7e2;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+    }
+
+    button {
+      padding: 10px 18px;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .muted {
+      color: #667085;
+      font-size: 13px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: #f5f7fb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+      border: 1px solid #e3e8ef;
+      min-height: 120px;
+      .disclaimer {
+  margin-top: 40px;
+  padding: 15px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+  .tagline {
+  margin-top: 6px;
+  margin-bottom: 25px;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.4;
+}
+}
+    }
   </style>
 </head>
 <body>
- <h1>AI Procurement Compliance Co-Pilot for Government Contractors</h1>
-
-<p class="muted">
-Built for small and mid-size defense contractors preparing for CPSR, DCMA, and DCAA scrutiny.
+  <div class="container">
+    <div class="header">
+      <img src="assets/govcon-logo.png" alt="GovCon AI Logo" />
+      <h1>GovCon AI Proposal Scanner</h1>
+      <p class="tagline">
+AI-assisted analysis of RFPs, contracts, and procurement documents to identify proposal requirements, compliance risks, and bid strategy insights.
 </p>
+    </div>
 
-<p class="muted">
-<strong>What it does:</strong> Paste purchasing or subcontract text → get audit-focused risk flags and recommended next actions in seconds.
-</p>
+    <p class="subtitle">
+      Analyze RFPs, contracts, subcontract language, supplier quotes, and solicitation text
+      to identify bid requirements, flowdown obligations, FAR/DFARS concerns, and proposal risk.
+    </p>
 
-<p class="muted" style="font-size:12px;">
-For internal readiness only. Not a substitute for a full CPSR file review.
-</p>
-  <div class="row">
-    <label>
-      Review Type:
-      <select id="reviewType">
-        <option value="general">General CPSR Risk Scan</option>
-        <option value="flowdown">Flowdown / Clause Focus</option>
-        <option value="price">Competition / Price Analysis Focus</option>
-        <option value="export">ITAR/EAR Indicators Focus</option>
-      </select>
-    </label>
+    <div class="upload-card">
+      <h3>Upload RFP, RFQ, SOW, or Contract Document</h3>
+      <p class="muted">
+        Drag and drop a PDF, DOCX, or TXT file here, or click below to browse.
+      </p>
 
-    <label>
-      Contract Type (optional):
-      <input id="contractType" placeholder="e.g., FFP, T&M, CPFF" />
-    </label>
+      <div id="dropZone" class="drop-zone">
+        <p><strong>Drag & Drop File Here</strong></p>
+        <p class="muted">Supported formats: PDF, DOCX, TXT</p>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt" hidden />
+        <button type="button" id="chooseFileBtn">Choose File</button>
+        <p id="fileName" class="muted"></p>
+      </div>
 
-    <button id="btn" onclick="analyze()">Run Scan</button>
+      <div style="margin-top: 12px;">
+        <button id="uploadBtn" type="button">Analyze Uploaded File</button>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>Or Paste Text for Analysis</h3>
+
+      <div class="row">
+        <label>
+          Review Type:
+          <select id="reviewType">
+            <option value="proposal">Proposal Readiness</option>
+            <option value="biddecision">Bid / No-Bid Risk</option>
+            <option value="compliance">Compliance Review</option>
+            <option value="flowdown">Flowdown Review</option>
+            <option value="price">Pricing Risk Review</option>
+            <option value="export">Export Control Review</option>
+          </select>
+        </label>
+
+        <label>
+          Contract Type (optional):
+          <input id="contractType" placeholder="e.g., FFP, T&M, CPFF" />
+        </label>
+
+        <button id="textAnalyzeBtn" type="button">Analyze Text</button>
+      </div>
+
+      <textarea id="inputText" placeholder="Paste solicitation, subcontract, or procurement text here..."></textarea>
+    </div>
+
+    <div class="result-card">
+      <h3>Analysis Results</h3>
+      <p id="status" class="muted"></p>
+      <pre id="output"></pre>
+      <button id="downloadBtn" type="button">Download Report</button>
+    </div>
   </div>
 
-  <br/>
+  <script>
+    let selectedFile = null;
 
-  <textarea id="inputText" rows="16" placeholder="Paste the procurement/subcontract text here..."></textarea>
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const fileName = document.getElementById("fileName");
+    const chooseFileBtn = document.getElementById("chooseFileBtn");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const textAnalyzeBtn = document.getElementById("textAnalyzeBtn");
+    const output = document.getElementById("output");
+    const statusEl = document.getElementById("status");
 
-  <p class="muted" id="status"></p>
-  <pre id="output"></pre>
-
-<script>
-(function warnIfFileProtocol() {
-  if (window.location.protocol === "file:") {
-    document.getElementById("fileWarn").style.display = "block";
-  }
-})();
-
-function getApiUrl() {
-  // Primary: relative path (works when page is served from the same server)
-  // Fallback: if user accidentally opened file://, this will fail — we provide an absolute URL.
-  if (window.location.protocol === "file:") {
-    return "http://localhost:3000/api/analyze";
-  }
-  return "/api/analyze";
-}
-
-async function analyze() {
-  const btn = document.getElementById("btn");
-  const status = document.getElementById("status");
-  const output = document.getElementById("output");
-
-  const text = document.getElementById("inputText").value.trim();
-  const reviewType = document.getElementById("reviewType").value;
-  const contractType = document.getElementById("contractType").value.trim();
-
-  output.textContent = "";
-  status.textContent = "";
-
-  if (!text) {
-    output.textContent = "Please paste text to analyze.";
-    return;
-  }
-
-  btn.disabled = true;
-  status.textContent = "Running scan...";
-
-  // Add a timeout so fetch doesn't hang forever
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000); // 60s
-
-  try {
-    const resp = await fetch(getApiUrl(), {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ text, reviewType, contractType }),
-      signal: controller.signal
+    chooseFileBtn.addEventListener("click", () => {
+      fileInput.click();
     });
 
-    const data = await resp.json().catch(() => ({}));
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        selectedFile = fileInput.files[0];
+        fileName.textContent = `Selected file: ${selectedFile.name}`;
+      }
+    });
 
-    if (!resp.ok) {
-      const msg = data?.error || `Request failed (${resp.status}).`;
-      status.textContent = "Error.";
-      status.className = "muted err";
-      output.textContent = msg;
-      return;
-    }
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
 
-    status.textContent = "Done.";
-    status.className = "muted";
-    output.textContent = data?.result || "No result returned.";
-  } catch (e) {
-    status.textContent = "Error.";
-    status.className = "muted err";
-    output.textContent =
-      (e?.name === "AbortError")
-        ? "Request timed out. Try again with a shorter paste or check server logs."
-        : `Failed to fetch. Make sure your server is running and open http://localhost:3000 (not file://). Details: ${e?.message || e}`;
-  } finally {
-    clearTimeout(timeout);
-    btn.disabled = false;
-  }
-}
-</script><hr style="margin-top:40px;"/>
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("dragover");
+    });
 
-<h3>Want the CPSR Purchasing File Checklist?</h3>
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
 
-<p class="muted">
-Get the checklist auditors actually use when reviewing purchasing files.
-</p>
+      if (e.dataTransfer.files.length > 0) {
+        selectedFile = e.dataTransfer.files[0];
+        fileName.textContent = `Selected file: ${selectedFile.name}`;
+      }
+    });
 
-<input id="emailCapture" placeholder="Enter your email" style="padding:8px; width:260px;" />
-<button onclick="captureEmail()">Send Me the Checklist</button>
+    uploadBtn.addEventListener("click", async () => {
+      if (!selectedFile) {
+        output.textContent = "Please choose or drag in a file first.";
+        return;
+      }
 
-<p id="emailStatus" class="muted"></p>
+      const formData = new FormData();
+      formData.append("document", selectedFile);
 
-<script>
-function captureEmail() {
-  const email = document.getElementById("emailCapture").value.trim();
-  const status = document.getElementById("emailStatus");
+      statusEl.textContent = "Uploading and analyzing file...";
+      output.textContent = "";
+      uploadBtn.disabled = true;
 
-  if (!email || !email.includes("@")) {
-    status.textContent = "Please enter a valid email.";
-    return;
-  }
+      try {
+        const resp = await fetch("/analyze-upload", {
+          method: "POST",
+          body: formData
+        });
 
-  // SIMPLE VERSION FOR TONIGHT:
-  // opens email client so you collect leads immediately
-  window.location.href =
-    "mailto:michael.allen.scott43@outlook.com" +
-    "?subject=CPSR Checklist Request" +
-    "&body=Please send the CPSR checklist to: " + encodeURIComponent(email);
+        const data = await resp.json();
 
-  status.textContent = "Thanks — we’ll send it shortly.";
-}
-</script>
-<hr style="margin-top:40px;"/>
+        if (!resp.ok) {
+          throw new Error(data.error || `Upload failed (${resp.status})`);
+        }
 
-<h3>Want the CPSR Purchasing File Checklist?</h3>
+        output.textContent = typeof data.analysis === "string"
+          ? data.analysis
+          : JSON.stringify(data.analysis || data, null, 2);
 
-<p class="muted">
-Get the checklist auditors actually use when reviewing purchasing files.
-</p>
+        statusEl.textContent = "Upload analysis complete.";
+      } catch (e) {
+        statusEl.textContent = "Upload error.";
+        output.textContent = String(e.message || e);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
 
-<input id="emailCapture" placeholder="Enter your email" style="padding:8px; width:260px;" />
-<button onclick="captureEmail()">Send Me the Checklist</button>
+    textAnalyzeBtn.addEventListener("click", async () => {
+      const text = document.getElementById("inputText").value.trim();
+      const reviewType = document.getElementById("reviewType").value;
+      const contractType = document.getElementById("contractType").value.trim();
 
-<p id="emailStatus" class="muted"></p>
+      output.textContent = "";
 
-<script>
-function captureEmail() {
-  const email = document.getElementById("emailCapture").value.trim();
-  const status = document.getElementById("emailStatus");
+      if (!text) {
+        output.textContent = "Please paste some text to analyze.";
+        return;
+      }
 
-  if (!email || !email.includes("@")) {
-    status.textContent = "Please enter a valid email.";
-    return;
-  }
+      textAnalyzeBtn.disabled = true;
+      statusEl.textContent = "Running text analysis...";
 
-  // SIMPLE VERSION FOR TONIGHT:
-  // opens email client so you collect leads immediately
-  window.location.href =
-    "mailto:michael.allen.scott43@outlook.com" +
-    "?subject=CPSR Checklist Request" +
-    "&body=Please send the CPSR checklist to: " + encodeURIComponent(email);
+      try {
+        const resp = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, reviewType, contractType })
+        });
 
-  status.textContent = "Thanks — we’ll send it shortly.";
-}
-</script>
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.error || `Request failed (${resp.status})`);
+        }
+
+        const data = await resp.json();
+        output.textContent = data.result || "No result returned.";
+        statusEl.textContent = "Text analysis complete.";
+      } catch (e) {
+        statusEl.textContent = "Error.";
+        output.textContent = String(e.message || e);
+      } finally {
+        textAnalyzeBtn.disabled = false;
+      }
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const text = output.textContent || "";
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "govcon-ai-report.txt";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    });
+  </script>
+ </script>
+
+<footer class="disclaimer">
+Designed for Non-Classified Use Only. Do not upload classified information,
+Controlled Unclassified Information (CUI), ITAR/EAR controlled technical data,
+export-controlled materials, or proprietary government data.
+</footer>
+
 </body>
 </html>
