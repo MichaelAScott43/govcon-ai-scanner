@@ -272,4 +272,5 @@ app.get("*", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`GovCon AI Scanner running on port ${PORT}`);
+  console.log("SAM KEY:", process.env.SAM_API_KEY);
 });
