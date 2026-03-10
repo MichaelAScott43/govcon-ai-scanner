@@ -4,6 +4,8 @@ import { searchOpportunities, normalizeOpportunity } from "../services/samServic
 const router = express.Router();
 
 router.get("/", async (req, res) => {
+  console.log("HIT /api/opportunities", req.query);
+
   try {
     const {
       postedFrom,
@@ -39,13 +41,12 @@ router.get("/", async (req, res) => {
       page: page ? Number(page) : 1,
       opportunities
     });
-
   } catch (error) {
-    console.error("SAM API Error:", error);
+    console.error("SAM API Error:", error?.message, error);
 
     res.status(500).json({
       success: false,
-      error: "Failed to fetch opportunities"
+      error: error?.message || "Failed to fetch opportunities"
     });
   }
 });

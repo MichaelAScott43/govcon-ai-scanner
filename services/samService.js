@@ -1,4 +1,6 @@
-import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const SAM_BASE_URL = "https://api.sam.gov/opportunities/v2/search";
 
@@ -8,6 +10,22 @@ function cleanParams(params) {
       return value !== undefined && value !== null && value !== "";
     })
   );
+}
+
+function toIsoDate(value) {
+  if (!value) return value;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const parts = value.split("/");
+  if (parts.length === 3) {
+    const [month, day, year] = parts;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  return value;
 }
 
 export async function searchOpportunities({
@@ -33,8 +51,8 @@ export async function searchOpportunities({
 
   const params = cleanParams({
     api_key: process.env.SAM_API_KEY,
-    postedFrom,
-    postedTo,
+    postedFrom: toIsoDate(postedFrom),
+    postedTo: toIsoDate(postedTo),
     limit,
     offset,
     keyword,
@@ -44,12 +62,30 @@ export async function searchOpportunities({
     noticeType
   });
 
-  const response = await axios.get(SAM_BASE_URL, {
-    params,
-    timeout: 30000
-  });
+  const url = `${SAM_BASE_URL}?${new URLSearchParams(params).toString()}`;
 
-  return response.data;
+  console.log("SAM request URL:", url);
+
+  const response = await fetch(url);
+
+  console.log("SAM response status:", response.status);
+
+  const text = await response.text();
+  console.log("SAM raw response:", text.substring(0, 500));
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    throw new Error("SAM returned invalid JSON: " + text.substring(0, 200));
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message || `SAM API request failed with status ${response.status}`);
+  }
+
+  return data;
 }
 
 export function normalizeOpportunity(item = {}) {

@@ -8,6 +8,7 @@ import path from "path";
 const app = express();
 app.use(express.json({ limit: "4mb" }));
 app.use(express.static(".")); // serves index.html and assets
+app.use("/api/opportunities", opportunitiesRouter);
 
 const upload = multer({
   dest: "uploads/",
