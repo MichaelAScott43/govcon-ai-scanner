@@ -291,14 +291,27 @@ pasteForm.addEventListener("submit", (e) => {
 samSearchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const params = new URLSearchParams({
-    postedFrom: document.getElementById("postedFrom").value.trim(),
-    postedTo: document.getElementById("postedTo").value.trim(),
-    keyword: document.getElementById("keyword").value.trim(),
-    naics: document.getElementById("naics").value.trim(),
-    psc: document.getElementById("psc").value.trim(),
-    setAside: document.getElementById("setAside").value.trim()
-  });
+function toIsoDate(value) {
+  if (!value) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+  const parts = value.split("/");
+  if (parts.length === 3) {
+    const [month, day, year] = parts;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  return value;
+}
+
+const params = new URLSearchParams({
+  postedFrom: toIsoDate(document.getElementById("postedFrom").value),
+  postedTo: toIsoDate(document.getElementById("postedTo").value),
+  keyword: document.getElementById("keyword").value.trim(),
+  naics: document.getElementById("naics").value.trim(),
+  psc: document.getElementById("psc").value.trim(),
+  setAside: document.getElementById("setAside").value.trim()
+});
 
   if (!params.get("postedFrom") || !params.get("postedTo")) {
     alert("Posted From and Posted To are required for SAM search.");
