@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: govcon-ai-scanner
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: SAM_API_KEY
+        sync: false   # Must be set manually in the Render dashboard — never commit the real value here
+      - key: PORT
+        value: "10000"  # Render assigns port 10000 by default; the app reads process.env.PORT
+      - key: NODE_ENV
+        value: production
+      - key: DD_ENABLED
+        value: "false"  # Set to "true" and configure DD_* vars only if you use Datadog
+      - key: DD_SERVICE
+        value: govcon-ai-scanner
+      - key: DD_ENV
+        value: production

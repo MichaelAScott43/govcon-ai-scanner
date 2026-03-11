@@ -303,5 +303,14 @@ app.get("*", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`GovCon AI Scanner running on port ${PORT}`);
-  console.log("SAM_API_KEY configured:", !!process.env.SAM_API_KEY);
+
+  if (process.env.SAM_API_KEY) {
+    console.log("✅ SAM_API_KEY is configured.");
+  } else {
+    console.warn(
+      "⚠️  WARNING: SAM_API_KEY is not set. SAM.gov search will fail until this is configured.\n" +
+      "   • Local development: add SAM_API_KEY=<your_key> to your .env file and restart.\n" +
+      "   • Render deployment: set SAM_API_KEY in the Render dashboard under Environment > Environment Variables."
+    );
+  }
 });

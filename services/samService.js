@@ -1,7 +1,3 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 const SAM_BASE_URL = "https://api.sam.gov/opportunities/v1/search";
 
 function cleanParams(params) {
