@@ -1,3 +1,4 @@
+import "./tracer.js"; // must be the first import — initializes Datadog APM
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
@@ -6,6 +7,7 @@ import pdfParse from "pdf-parse";
 import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
+import { tracer } from "./tracer.js";
 import opportunitiesRouter from "./routes/opportunities.js";
 
 dotenv.config();
@@ -21,6 +23,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+
+// API routes — registered early so they are matched before the wildcard fallback
+app.use("/api/opportunities", opportunitiesRouter);
 
 // Multer upload config
 const upload = multer({
@@ -191,13 +196,20 @@ function detectClauses(text) {
 
 // Main upload route
 app.post("/upload", upload.single("file"), async (req, res) => {
+  const span = tracer?.startSpan("govcon.document.upload");
   try {
     if (!req.file) {
+      span?.setTag("error", true);
+      span?.setTag("govcon.upload.error", "no_file");
       return res.status(400).json({
         success: false,
         error: "No file uploaded."
       });
     }
+
+    span?.setTag("govcon.file.name", req.file.originalname);
+    span?.setTag("govcon.file.size", req.file.size);
+    span?.setTag("govcon.file.mimetype", req.file.mimetype);
 
     const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdfParse(dataBuffer);
@@ -205,6 +217,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
     const clauses = detectClauses(extractedText);
     const scoreData = calculateBidScore(extractedText);
+
+    span?.setTag("govcon.bid.score", scoreData.bidScore);
+    span?.setTag("govcon.bid.recommendation", scoreData.recommendation);
+    span?.setTag("govcon.clauses.count", clauses.length);
+    span?.setTag("govcon.file.pages", pdfData.numpages || 0);
 
     fs.unlinkSync(req.file.path);
 
@@ -218,30 +235,44 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       disclaimer: "Designed for Non-Classified Use Only"
     });
   } catch (error) {
+    span?.setTag("error", true);
+    span?.setTag("govcon.upload.error", error?.message);
     console.error("Upload analysis error:", error);
 
     return res.status(500).json({
       success: false,
       error: "Failed to analyze uploaded document."
     });
+  } finally {
+    span?.finish();
   }
 });
 
 // Real pasted-text route
 app.post("/analyze-text", async (req, res) => {
+  const span = tracer?.startSpan("govcon.text.analyze");
   try {
     const { text, reviewType } = req.body;
 
     if (!text || !text.trim()) {
+      span?.setTag("error", true);
+      span?.setTag("govcon.analyze.error", "no_text");
       return res.status(400).json({
         success: false,
         error: "No text provided for analysis."
       });
     }
 
+    span?.setTag("govcon.review.type", reviewType || "text-analysis");
+    span?.setTag("govcon.text.length", text.length);
+
     const normalizedText = normalizeText(text);
     const clauses = detectClauses(normalizedText);
     const scoreData = calculateBidScore(normalizedText);
+
+    span?.setTag("govcon.bid.score", scoreData.bidScore);
+    span?.setTag("govcon.bid.recommendation", scoreData.recommendation);
+    span?.setTag("govcon.clauses.count", clauses.length);
 
     return res.json({
       success: true,
@@ -252,17 +283,20 @@ app.post("/analyze-text", async (req, res) => {
       disclaimer: "Designed for Non-Classified Use Only"
     });
   } catch (error) {
+    span?.setTag("error", true);
+    span?.setTag("govcon.analyze.error", error?.message);
     console.error("Text analysis error:", error);
 
     return res.status(500).json({
       success: false,
       error: "Failed to analyze pasted text."
     });
+  } finally {
+    span?.finish();
   }
 });
 
-// API routes
-app.use("/api/opportunities", opportunitiesRouter);
+// Fallback — serve the SPA for all unmatched routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

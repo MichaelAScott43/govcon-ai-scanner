@@ -1,10 +1,12 @@
 import express from "express";
 import { searchOpportunities, normalizeOpportunity } from "../services/samService.js";
+import { tracer } from "../tracer.js";
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   console.log("HIT /api/opportunities", req.query);
+  const span = tracer?.startSpan("govcon.sam.search");
 
   try {
     const {
@@ -18,6 +20,13 @@ router.get("/", async (req, res) => {
       page,
       limit
     } = req.query;
+
+    span?.setTag("govcon.sam.keyword", keyword || "");
+    span?.setTag("govcon.sam.naics", naics || "");
+    span?.setTag("govcon.sam.psc", psc || "");
+    span?.setTag("govcon.sam.setAside", setAside || "");
+    span?.setTag("govcon.sam.postedFrom", postedFrom || "");
+    span?.setTag("govcon.sam.postedTo", postedTo || "");
 
     const data = await searchOpportunities({
       postedFrom,
@@ -35,6 +44,9 @@ router.get("/", async (req, res) => {
       ? data.opportunitiesData.map(normalizeOpportunity)
       : [];
 
+    span?.setTag("govcon.sam.results.count", opportunities.length);
+    span?.setTag("govcon.sam.results.total", data.totalRecords ?? opportunities.length);
+
     res.json({
       success: true,
       totalRecords: data.totalRecords ?? opportunities.length,
@@ -43,12 +55,16 @@ router.get("/", async (req, res) => {
     });
   } catch (error) {
     console.error("SAM API Error:", error?.message, error);
+    span?.setTag("error", true);
+    span?.setTag("govcon.sam.error", error?.message);
 
     res.status(error?.code === "MISSING_API_KEY" ? 400 : 500).json({
       success: false,
       errorCode: error?.code || null,
       error: error?.message || "Failed to fetch opportunities"
     });
+  } finally {
+    span?.finish();
   }
 });
 
