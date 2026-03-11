@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import { tracer } from "./tracer.js";
 import opportunitiesRouter from "./routes/opportunities.js";
+import samSearchRouter from "./routes/samSearch.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // API routes — registered early so they are matched before the wildcard fallback
 app.use("/api/opportunities", opportunitiesRouter);
+app.use("/api/sam-search", samSearchRouter);
 
 // Multer upload config
 const upload = multer({
