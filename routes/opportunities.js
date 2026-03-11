@@ -68,4 +68,45 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Debug endpoint: validates SAM API connectivity with minimal parameters
+router.get("/debug", async (req, res) => {
+  console.log("HIT /api/opportunities/debug");
+
+  if (!process.env.SAM_API_KEY) {
+    return res.status(400).json({
+      success: false,
+      errorCode: "MISSING_API_KEY",
+      error: "SAM_API_KEY is not configured on the server. Add it to your .env file and restart."
+    });
+  }
+
+  // Use a narrow date window (last 7 days) with just the required params
+  const today = new Date();
+  const weekAgo = new Date(today);
+  weekAgo.setDate(today.getDate() - 7);
+
+  const formatDate = (d) =>
+    `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+
+  try {
+    const data = await searchOpportunities({
+      postedFrom: formatDate(weekAgo),
+      postedTo: formatDate(today),
+      limit: 1
+    });
+
+    res.json({
+      success: true,
+      message: "SAM API connectivity confirmed.",
+      totalRecords: data.totalRecords ?? null
+    });
+  } catch (error) {
+    console.error("SAM debug Error:", error?.message);
+    res.status(500).json({
+      success: false,
+      error: error?.message || "SAM connectivity check failed"
+    });
+  }
+});
+
 export default router;

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const SAM_BASE_URL = "https://api.sam.gov/opportunities/v2/search";
+const SAM_BASE_URL = "https://api.sam.gov/opportunities/v1/search";
 
 function cleanParams(params) {
   return Object.fromEntries(
@@ -60,34 +60,44 @@ export async function searchOpportunities({
     keyword,
     naics,
     psc,
-    typeOfSetAside: setAside,
+    setAside,
     noticeType
   });
 
   const url = `${SAM_BASE_URL}?${new URLSearchParams(params).toString()}`;
 
-  console.log("SAM request URL:", url);
-
-  const response = await fetch(url);
-
-  console.log("SAM response status:", response.status);
-
-  const text = await response.text();
-  console.log("SAM raw response:", text.substring(0, 500));
-
-  let data;
+  // Mask the API key in logs to avoid exposing sensitive credentials
+  const safeUrl = url.replace(/api_key=[^&]+(&|$)/, "api_key=***REDACTED***$1");
+  console.log("🔍 SAM request URL:", safeUrl);
+  console.log("📋 SAM request params:", { postedFrom, postedTo, keyword, naics, psc, setAside, noticeType, page, limit });
 
   try {
-    data = JSON.parse(text);
-  } catch (err) {
-    throw new Error("SAM returned invalid JSON: " + text.substring(0, 200));
-  }
+    const response = await fetch(url);
 
-  if (!response.ok) {
-    throw new Error(data?.message || `SAM API request failed with status ${response.status}`);
-  }
+    console.log("📊 SAM response status:", response.status);
 
-  return data;
+    const text = await response.text();
+    console.log("📝 SAM raw response:", text.substring(0, 1000));
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error("❌ Failed to parse SAM JSON response:", err.message);
+      throw new Error("SAM returned invalid JSON: " + text.substring(0, 200));
+    }
+
+    if (!response.ok) {
+      console.error("❌ SAM API Error response body:", JSON.stringify(data));
+      throw new Error(data?.message || `SAM API request failed with status ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("❌ SAM Service Error:", error.message);
+    throw error;
+  }
 }
 
 export function normalizeOpportunity(item = {}) {
