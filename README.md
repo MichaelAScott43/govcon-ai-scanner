@@ -42,6 +42,20 @@ Do not upload:
 
 This tool is intended for general proposal preparation and document analysis.
 
+## Pricing & Payments
+
+GovCon AI Scanner includes a **30-day free trial** with full access to all features.
+
+After the trial period, users are directed to upgrade via Stripe:
+
+**Stripe Payment Link:** `https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02`
+
+Set this link in your environment:
+
+```env
+STRIPE_PAYMENT_LINK=https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02
+```
+
 ## Technology Stack
 
 - Node.js
