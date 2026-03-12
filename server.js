@@ -10,6 +10,8 @@ import connectDB from "./backend/config/db.js";
 import authRouter from "./backend/routes/auth.js";
 import opportunitiesRouter from "./backend/routes/opportunities.js";
 import emailRouter from "./backend/routes/email.js";
+import adminRouter from "./backend/routes/admin.js";
+import docsRouter from "./backend/routes/docs.js";
 
 dotenv.config();
 
@@ -67,6 +69,10 @@ app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/opportunities", apiLimiter, opportunitiesRouter);
 app.use("/api/email", apiLimiter, emailRouter);
 app.use("/api/email-preferences", apiLimiter, emailRouter);
+app.use("/api/admin", apiLimiter, adminRouter);
+
+// API Documentation (no auth required — publicly accessible)
+app.use(docsRouter);
 
 // Health check (no auth required)
 app.get("/health", (req, res) => {
