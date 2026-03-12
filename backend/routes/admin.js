@@ -462,8 +462,11 @@ router.post("/system/restart", (req, res) => {
 
   res.json({ success: true, message: "Graceful restart initiated." });
 
-  // Give the response time to flush, then exit (PM2 / Render will restart)
-  setTimeout(() => process.exit(0), 500);
+  // Flush the response, then perform a clean shutdown.
+  // The process manager (PM2 / Render) will restart the service automatically.
+  res.on("finish", () => {
+    process.exit(0);
+  });
 });
 
 export default router;

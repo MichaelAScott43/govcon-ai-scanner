@@ -66,7 +66,9 @@ export async function getDashboardMetrics() {
     EmailPreference.countDocuments({ enabled: true })
   ]);
 
-  // Monthly Active Users: users who have been created or updated in the last 30 days
+  // Monthly Active Users: active users who logged in (or refreshed token) in the last 30 days.
+  // `updatedAt` is a reliable proxy because every login/token-refresh writes refreshToken to the DB.
+  // For finer-grained tracking, add a dedicated `lastLoginAt` timestamp to the User schema.
   const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
   const mau = await User.countDocuments({
     isActive: true,
