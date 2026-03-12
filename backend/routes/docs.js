@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -9,6 +10,15 @@ const __dirname = path.dirname(__filename);
 
 // Path to the OpenAPI spec
 const openapiPath = path.join(__dirname, "../../docs/openapi.yaml");
+
+// Rate limiter for documentation endpoints
+const docsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many requests. Please try again later." }
+});
 
 // ---------------------------------------------------------------------------
 // GET /api-docs — Swagger UI interactive explorer
@@ -81,7 +91,7 @@ router.get("/api-docs", (req, res) => {
 });
 
 // Serve the raw OpenAPI YAML spec (consumed by Swagger UI and API clients)
-router.get("/api-docs/openapi.yaml", (req, res) => {
+router.get("/api-docs/openapi.yaml", docsLimiter, (req, res) => {
   if (!fs.existsSync(openapiPath)) {
     return res.status(404).json({ success: false, error: "OpenAPI spec not found." });
   }

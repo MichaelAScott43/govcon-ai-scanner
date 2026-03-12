@@ -38,7 +38,7 @@ export function auditLog(req, res, next) {
   const start = Date.now();
   const { method, originalUrl, body, params, query } = req;
 
-  // Sanitise body before logging — never log passwords or tokens
+  // Sanitize body before logging — never log passwords or tokens
   const safeBody = Object.fromEntries(
     Object.entries(body || {}).filter(([k]) => !["password", "token", "refreshToken", "secret"].includes(k))
   );

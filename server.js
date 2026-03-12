@@ -71,7 +71,7 @@ app.use("/api/email", apiLimiter, emailRouter);
 app.use("/api/email-preferences", apiLimiter, emailRouter);
 app.use("/api/admin", apiLimiter, adminRouter);
 
-// API Documentation (no auth required — publicly accessible)
+// API Documentation (no auth required — publicly accessible, rate-limited within docsRouter)
 app.use(docsRouter);
 
 // Health check (no auth required)
