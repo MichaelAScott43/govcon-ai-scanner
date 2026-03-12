@@ -281,19 +281,3 @@ export default function AnalysisResults({ result }) {
   );
 }
 
-function ScoreMeter({ score }) {
-  const color =
-    score >= 75 ? "bg-green-500"
-    : score >= 60 ? "bg-blue-500"
-    : score >= 40 ? "bg-yellow-500"
-    : "bg-red-500";
-
-  return (
-    <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-all duration-500 ${color}`}
-        style={{ width: `${score}%` }}
-      />
-    </div>
-  );
-}

@@ -640,7 +640,6 @@ export default function Dashboard() {
                       type="file"
                       accept=".pdf,.docx,.txt"
                       className="hidden"
-                      onChange={() => {}}
                     />
                   </div>
                   <div className="flex items-center gap-3">

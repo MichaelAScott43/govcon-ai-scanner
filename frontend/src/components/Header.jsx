@@ -49,7 +49,7 @@ export default function Header() {
       <div className="flex items-center gap-3">
         {/* Logo mark */}
         <div className="w-8 h-8 bg-gold-500 rounded-lg flex items-center justify-center shadow-sm shrink-0">
-          <svg className="w-4.5 h-4.5 text-navy-950" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <svg className="w-4 h-4 text-navy-950" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd"
               d="M10 1a9 9 0 100 18A9 9 0 0010 1zm-1 5a1 1 0 112 0v4a1 1 0 11-2 0V6zm1 8a1.25 1.25 0 110-2.5A1.25 1.25 0 0110 14z"
               clipRule="evenodd" />

@@ -7,6 +7,7 @@ const NAICS_OPTIONS = [
   { code: "541330", label: "541330 – Engineering Services" },
   { code: "541511", label: "541511 – Custom Computer Programming" },
   { code: "541512", label: "541512 – Computer Systems Design" },
+  { code: "541513", label: "541513 – Computer Facilities Management" },
   { code: "541519", label: "541519 – Other Computer-Related Services" },
   { code: "541611", label: "541611 – Management Consulting" },
   { code: "541690", label: "541690 – Other Scientific & Technical Consulting" },
@@ -63,7 +64,11 @@ export default function LoginPage() {
       if (mode === "login") {
         res = await authApi.login({ email: form.email, password: form.password });
       } else {
-        if (!form.name.trim()) { setError("Full name is required."); setLoading(false); return; }
+        if (!form.name.trim()) {
+          setError("Full name is required.");
+          setLoading(false);
+          return;
+        }
         res = await authApi.register({
           email: form.email,
           password: form.password,
