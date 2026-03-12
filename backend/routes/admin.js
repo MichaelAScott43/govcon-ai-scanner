@@ -117,6 +117,10 @@ router.patch("/users/:id", async (req, res) => {
     }
     if (isActive !== undefined) updates.isActive = Boolean(isActive);
 
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, error: "No valid fields provided for update." });
+    }
+
     const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select("-password -refreshToken");
     if (!user) {
       return res.status(404).json({ success: false, error: "User not found." });
@@ -167,6 +171,38 @@ router.get("/analytics/usage", async (req, res) => {
   } catch (error) {
     console.error("Admin analytics usage error:", error.message);
     res.status(500).json({ success: false, error: "Failed to fetch usage analytics." });
+  }
+});
+
+// GET /api/admin/analytics/revenue — Revenue and subscription breakdown
+router.get("/analytics/revenue", async (req, res) => {
+  try {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+
+    const [totalUsers, activeUsers, newUsersLast30Days] = await Promise.all([
+      User.countDocuments({}),
+      User.countDocuments({ isActive: true }),
+      User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } })
+    ]);
+
+    res.json({
+      success: true,
+      revenue: {
+        note: "Connect your Stripe account to surface live MRR/ARR data here.",
+        platformStats: {
+          totalUsers,
+          activeUsers,
+          newUsersLast30Days,
+          inactiveRate: totalUsers > 0 ? ((totalUsers - activeUsers) / totalUsers * 100).toFixed(1) + "%" : "0%"
+        },
+        generatedAt: now.toISOString()
+      }
+    });
+  } catch (error) {
+    console.error("Admin revenue analytics error:", error.message);
+    res.status(500).json({ success: false, error: "Failed to fetch revenue analytics." });
   }
 });
 
@@ -427,6 +463,16 @@ router.get("/logs", (req, res) => {
     hint: "Wire this to a log aggregation service (Datadog Logs, CloudWatch, etc.) for production use.",
     filters: { level, limit: Number(limit) },
     logs: []
+  });
+});
+
+// POST /api/admin/system/restart — Graceful server restart (signals process manager)
+router.post("/system/restart", (req, res) => {
+  res.json({ success: true, message: "Restart signal sent. The server will restart momentarily." });
+  // Allow the response to flush before exiting — process manager (e.g., render.com, pm2) will restart the process
+  res.on("finish", () => {
+    console.log(JSON.stringify({ type: "admin_restart", ts: new Date().toISOString(), admin: req.adminUser?.email }));
+    process.exit(0);
   });
 });
 

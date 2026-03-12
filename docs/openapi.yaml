@@ -1160,6 +1160,50 @@ paths:
               schema:
                 type: string
 
+  /api/admin/analytics/revenue:
+    get:
+      tags: [Admin – Analytics]
+      summary: Revenue and subscription breakdown
+      description: Returns platform user stats and revenue indicators. Connect Stripe for live MRR/ARR data.
+      operationId: adminAnalyticsRevenue
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Revenue analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  revenue:
+                    type: object
+                    properties:
+                      note:
+                        type: string
+                      platformStats:
+                        type: object
+                        properties:
+                          totalUsers:
+                            type: integer
+                          activeUsers:
+                            type: integer
+                          newUsersLast30Days:
+                            type: integer
+                          inactiveRate:
+                            type: string
+                            example: "7.3%"
+                      generatedAt:
+                        type: string
+                        format: date-time
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
   # ---------------------------------------------------------------------------
   # Admin – Subscriptions
   # ---------------------------------------------------------------------------
@@ -1406,3 +1450,30 @@ paths:
                     type: array
                     items:
                       type: object
+
+  /api/admin/system/restart:
+    post:
+      tags: [Admin – Health]
+      summary: Graceful server restart
+      description: Sends an exit(0) signal; the process manager (Render, PM2, etc.) restarts the server automatically.
+      operationId: adminSystemRestart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Restart signal acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Restart signal sent. The server will restart momentarily."
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
