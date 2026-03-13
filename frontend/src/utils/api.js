@@ -93,4 +93,10 @@ export const emailApi = {
   sendDailyDigest: () => api.post("/api/email/send-daily-digest")
 };
 
+// Opportunity Intelligence
+export const intelligenceApi = {
+  get: () => api.get("/api/opportunity-intelligence"),
+  refresh: (params = {}) => api.post("/api/opportunity-intelligence/refresh", params)
+};
+
 export default api;

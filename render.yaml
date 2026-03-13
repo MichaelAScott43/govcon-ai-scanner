@@ -2,7 +2,7 @@ services:
   - type: web
     name: govcon-ai-scanner
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run build:frontend
     startCommand: node server.js
     envVars:
       - key: SAM_API_KEY
@@ -17,3 +17,21 @@ services:
         value: govcon-ai-scanner
       - key: DD_ENV
         value: production
+
+  # Optional: standalone Python intelligence microservice
+  # Deploy this service separately if you want to run the FastAPI intelligence
+  # module independently from the Node.js backend.
+  - type: web
+    name: govcon-intelligence
+    runtime: python
+    buildCommand: pip install -r intelligence/requirements.txt
+    startCommand: uvicorn intelligence.routes:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SAM_API_KEY
+        sync: false   # Must be set manually in the Render dashboard
+      - key: PORT
+        value: "10001"
+      - key: INTEL_PORT
+        value: "10001"
+      - key: INTELLIGENCE_DB_PATH
+        value: "/tmp/intelligence.db"

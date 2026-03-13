@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Header from "./Header.jsx";
 import SearchForm from "./SearchForm.jsx";
 import AnalysisResults from "./AnalysisResults.jsx";
+import OpportunityIntelligence from "./OpportunityIntelligence.jsx";
 import { opportunitiesApi, emailApi } from "../utils/api.js";
 import { getUser } from "../utils/auth.js";
 
@@ -9,6 +10,7 @@ const TABS = [
   { id: "search", label: "SAM.gov Search" },
   { id: "analyze", label: "Document Analysis" },
   { id: "saved", label: "Saved Opportunities" },
+  { id: "intelligence", label: "Opportunity Intelligence" },
   { id: "email", label: "Email Settings" }
 ];
 
@@ -306,6 +308,9 @@ export default function Dashboard() {
             )}
           </div>
         )}
+
+        {/* ── Opportunity Intelligence ── */}
+        {tab === "intelligence" && <OpportunityIntelligence />}
 
         {/* ── Email Settings ── */}
         {tab === "email" && (

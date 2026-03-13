@@ -37,6 +37,8 @@ Edit `.env` and fill in:
 | `SENDGRID_API_KEY` | Email (alt) | SendGrid API key |
 | `PORT` | No | Server port (default: 3000) |
 
+> **Note:** USASpending.gov, SBIR.gov, and Grants.gov are public APIs that do not require API keys.
+
 > **Generate a JWT secret:** `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
 
 > **Gmail App Password:** Go to Google Account → Security → 2-Step Verification → App passwords
@@ -106,6 +108,27 @@ The frontend dev server runs at [http://localhost:5173](http://localhost:5173) a
 | `POST` | `/api/opportunities/analyze` | Analyze a document (file or text) |
 | `GET` | `/api/opportunities/debug` | Validate SAM API connectivity |
 
+### Opportunity Intelligence
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/opportunity-intelligence` | Get latest intelligence report (score, summary, metrics) |
+| `POST` | `/api/opportunity-intelligence/refresh` | Re-fetch from all federal databases and return updated analysis |
+
+**Refresh request body (all fields optional):**
+```json
+{
+  "naicsCodes": ["541511", "541512"],
+  "daysBack": 30
+}
+```
+
+**Supported federal databases:**
+- **SAM.gov** — federal contract solicitations (requires `SAM_API_KEY`)
+- **USASpending.gov** — federal contract awards (public API)
+- **SBIR.gov** — Small Business Innovation Research solicitations (public API)
+- **Grants.gov** — federal grants (public API)
+
 ### Email
 
 | Method | Endpoint | Description |
@@ -168,9 +191,18 @@ govcon-ai-scanner/
 │   │   └── email.js
 │   └── services/
 │       ├── samGov.js              # SAM.gov API client
+│       ├── intelligenceService.js # Multi-source opportunity intelligence
 │       ├── bidScoring.js          # FAR/DFARS intelligence engine
 │       ├── emailService.js        # Nodemailer / SendGrid
 │       └── documentParser.js     # PDF / DOCX / TXT parsing
+│
+├── intelligence/                  # Python FastAPI intelligence microservice
+│   ├── collector.py               # Multi-source collector (SAM.gov, USASpending, SBIR, Grants.gov)
+│   ├── analyzer.py                # Metrics: top agencies, NAICS, set-asides, keywords
+│   ├── scorer.py                  # Trend score 0–100
+│   ├── summarizer.py              # Human-readable summary generation
+│   ├── routes.py                  # FastAPI: GET/POST /opportunity-intelligence
+│   └── requirements.txt           # Python dependencies
 │
 ├── frontend/
 │   ├── index.html

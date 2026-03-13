@@ -12,6 +12,7 @@ import opportunitiesRouter from "./backend/routes/opportunities.js";
 import emailRouter from "./backend/routes/email.js";
 import adminRouter from "./backend/routes/admin.js";
 import docsRouter from "./backend/routes/docs.js";
+import opportunityIntelligenceRouter from "./backend/routes/opportunityIntelligence.js";
 
 dotenv.config();
 
@@ -76,6 +77,7 @@ const adminLimiter = rateLimit({
 // ---------------------------------------------------------------------------
 app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/opportunities", apiLimiter, opportunitiesRouter);
+app.use("/api/opportunity-intelligence", apiLimiter, opportunityIntelligenceRouter);
 app.use("/api/email", apiLimiter, emailRouter);
 app.use("/api/email-preferences", apiLimiter, emailRouter);
 app.use("/api/admin", adminLimiter, adminRouter);
