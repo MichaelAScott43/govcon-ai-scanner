@@ -80,28 +80,21 @@ export default function LoginPage() {
       {/* Top Logo Bar */}
       <header className="flex items-center justify-between px-8 py-5">
         {/* BlackCrest Sourcing Group — top left */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-lg leading-none">B</span>
-          </div>
-          <div>
-            <div className="text-white font-bold text-sm leading-tight">BlackCrest</div>
-            <div className="text-amber-400 text-xs leading-tight">Sourcing Group</div>
-          </div>
+        <div className="flex items-center">
+          <img
+            src="/logos/blackcrest-logo.svg"
+            alt="BlackCrest Sourcing Group"
+            className="h-12 w-auto object-contain"
+          />
         </div>
 
         {/* GovCon AI Scanner — top right */}
-        <div className="flex items-center gap-3">
-          <div>
-            <div className="text-white font-bold text-sm leading-tight text-right">GovCon AI</div>
-            <div className="text-blue-400 text-xs leading-tight text-right">Scanner</div>
-          </div>
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
+        <div className="flex items-center">
+          <img
+            src="/logos/govcon-logo.svg"
+            alt="GovCon AI Scanner"
+            className="h-12 w-auto object-contain"
+          />
         </div>
       </header>
 
