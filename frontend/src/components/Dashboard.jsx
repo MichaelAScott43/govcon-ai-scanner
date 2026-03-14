@@ -24,7 +24,8 @@ function OpportunityCard({ opp, onSave, saved }) {
             href={opp.uiLink || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 font-medium text-sm block truncate"
+            className="font-medium text-sm block truncate"
+            style={{ color: "#14243a" }}
           >
             {opp.title || "Untitled Opportunity"}
           </a>
@@ -41,8 +42,9 @@ function OpportunityCard({ opp, onSave, saved }) {
           className={`shrink-0 text-xs px-3 py-1.5 rounded-md font-medium border transition-colors ${
             saved
               ? "bg-green-50 text-green-700 border-green-200 cursor-default"
-              : "bg-white text-slate-600 border-slate-300 hover:border-blue-400 hover:text-blue-600"
+              : "bg-white border-slate-300 hover:border-[#14243a]"
           }`}
+          style={!saved ? { color: "#5d6b7c" } : {}}
         >
           {saved ? "Saved" : "Save"}
         </button>
@@ -158,31 +160,30 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col" style={{ background: "#f7fafe" }}>
       <Header />
 
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
         {/* Welcome bar */}
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-slate-800">
+          <h1 className="text-xl font-bold" style={{ color: "#14243a" }}>
             Welcome back{user?.name ? `, ${user.name}` : ""}!
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm mt-0.5" style={{ color: "#5d6b7c" }}>
             Your GovCon AI Scanner dashboard
           </p>
         </div>
 
         {/* Tab navigation */}
-        <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
+        <div className="flex gap-1 mb-6 border-b overflow-x-auto" style={{ borderColor: "rgba(20,36,58,0.12)" }}>
           {TABS.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                tab === id
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-slate-500 hover:text-slate-700"
-              }`}
+              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors`}
+              style={tab === id
+                ? { borderColor: "#14243a", color: "#14243a" }
+                : { borderColor: "transparent", color: "#5d6b7c" }}
             >
               {label}
             </button>
@@ -263,7 +264,7 @@ export default function Dashboard() {
                       ref={fileRef}
                       type="file"
                       accept=".pdf,.docx,.txt"
-                      className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                      className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#edf3fb] file:text-[#14243a] hover:file:bg-[#dce8f7] cursor-pointer"
                     />
                   </div>
                   <button type="submit" disabled={analyzeLoading} className="btn-primary">
@@ -329,7 +330,8 @@ export default function Dashboard() {
                     id="emailEnabled"
                     checked={emailPrefs.enabled}
                     onChange={(e) => setEmailPrefs((p) => ({ ...p, enabled: e.target.checked }))}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-slate-300"
+                    style={{ accentColor: "#14243a" }}
                   />
                   <label htmlFor="emailEnabled" className="text-sm font-medium text-slate-700">
                     Enable daily opportunity digest

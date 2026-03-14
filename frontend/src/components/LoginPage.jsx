@@ -76,24 +76,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: "#f7fafe" }}>
       {/* Top Logo Bar */}
-      <header className="flex items-center justify-between px-8 py-5">
+      <header className="flex items-center justify-between px-8 py-5 border-b" style={{ borderColor: "rgba(20,36,58,0.10)", background: "#ffffff" }}>
         {/* BlackCrest Sourcing Group — top left */}
         <div className="flex items-center">
           <img
-            src="/logos/blackcrest-logo.png"
+            src="/logos/blackcrest-logo.svg"
             alt="BlackCrest Sourcing Group"
-            className="h-12 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
         </div>
 
         {/* GovCon AI Scanner — top right */}
         <div className="flex items-center">
           <img
-            src="/logos/govcon-logo.png"
+            src="/logos/govcon-logo.svg"
             alt="GovCon AI Scanner"
-            className="h-12 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
         </div>
       </header>
@@ -103,23 +103,24 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">GovCon AI Scanner</h1>
-            <p className="text-slate-400 text-sm">
+            <h1 className="text-3xl font-bold mb-2" style={{ color: "#14243a" }}>GovCon AI Scanner</h1>
+            <p className="text-sm" style={{ color: "#5d6b7c" }}>
               Federal contracting intelligence powered by AI
             </p>
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <div className="bg-white rounded-2xl p-8" style={{ border: "1px solid rgba(20,36,58,0.12)", boxShadow: "0 10px 28px rgba(20,36,58,0.08)" }}>
             {/* Tab switcher */}
-            <div className="flex rounded-lg bg-slate-100 p-1 mb-6">
+            <div className="flex rounded-lg p-1 mb-6" style={{ background: "#edf3fb" }}>
               <button
                 onClick={() => { setMode("login"); setError(""); }}
                 className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
                   mode === "login"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white shadow-sm"
+                    : ""
                 }`}
+                style={mode === "login" ? { color: "#14243a" } : { color: "#5d6b7c" }}
               >
                 Sign In
               </button>
@@ -127,9 +128,10 @@ export default function LoginPage() {
                 onClick={() => { setMode("register"); setError(""); }}
                 className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
                   mode === "register"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white shadow-sm"
+                    : ""
                 }`}
+                style={mode === "register" ? { color: "#14243a" } : { color: "#5d6b7c" }}
               >
                 Register
               </button>
@@ -201,21 +203,22 @@ export default function LoginPage() {
               {mode === "register" && (
                 <div>
                   <label className="label">NAICS Codes (select all that apply)</label>
-                  <div className="max-h-40 overflow-y-auto border border-slate-200 rounded-lg p-2 space-y-1">
+                  <div className="max-h-40 overflow-y-auto rounded-lg p-2 space-y-1" style={{ border: "1px solid #c8d5e6" }}>
                     {NAICS_OPTIONS.map(({ code, label }) => (
                       <label key={code} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 rounded px-2 py-1">
                         <input
                           type="checkbox"
                           checked={form.naicsCodes.includes(code)}
                           onChange={() => handleNaicsToggle(code)}
-                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded"
+                          style={{ borderColor: "#c8d5e6", accentColor: "#14243a" }}
                         />
-                        <span className="text-sm text-slate-700">{label}</span>
+                        <span className="text-sm" style={{ color: "#14243a" }}>{label}</span>
                       </label>
                     ))}
                   </div>
                   {form.naicsCodes.length > 0 && (
-                    <p className="text-xs text-blue-600 mt-1">{form.naicsCodes.length} code(s) selected</p>
+                    <p className="text-xs mt-1" style={{ color: "#9a7724" }}>{form.naicsCodes.length} code(s) selected</p>
                   )}
                 </div>
               )}
@@ -227,12 +230,13 @@ export default function LoginPage() {
                     name="rememberMe"
                     checked={form.rememberMe}
                     onChange={handleChange}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded"
+                    style={{ borderColor: "#c8d5e6", accentColor: "#14243a" }}
                   />
-                  <span className="text-sm text-slate-600">Remember me</span>
+                  <span className="text-sm" style={{ color: "#5d6b7c" }}>Remember me</span>
                 </label>
                 {mode === "login" && (
-                  <button type="button" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                  <button type="button" className="text-sm font-medium" style={{ color: "#9a7724", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
                     Forgot password?
                   </button>
                 )}
@@ -252,7 +256,7 @@ export default function LoginPage() {
             </form>
           </div>
 
-          <p className="text-center text-slate-500 text-xs mt-6">
+          <p className="text-center text-xs mt-6" style={{ color: "#5d6b7c" }}>
             Designed for Non-Classified Use Only &bull; GovCon AI Scanner v2.0
           </p>
         </div>
