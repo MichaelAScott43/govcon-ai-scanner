@@ -111,8 +111,9 @@ router.get("/debug", async (req, res) => {
     });
   } catch (error) {
     console.error("SAM debug Error:", error?.message);
-    res.status(500).json({
+    res.status(error?.statusCode || 500).json({
       success: false,
+      errorCode: error?.code || null,
       error: error?.message || "SAM connectivity check failed",
       hint: "Verify SAM_API_KEY is valid and that the SAM.gov API is reachable from this server."
     });
