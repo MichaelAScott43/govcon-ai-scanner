@@ -265,7 +265,6 @@ export async function getSearchTrends() {
 // ---------------------------------------------------------------------------
 
 export async function getSystemHealth() {
-  const start = process.hrtime.bigint();
   let mongoStatus = "unknown";
   let mongoLatencyMs = null;
 
