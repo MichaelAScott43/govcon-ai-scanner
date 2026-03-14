@@ -2,6 +2,11 @@ services:
   - type: web
     name: govcon-ai-scanner
     runtime: node
+    # Install backend deps, then build the React frontend into frontend/dist/
+    buildCommand: npm install && npm run build:frontend
+    startCommand: node server.js
+    envVars:
+      # ── Server ──────────────────────────────────────────────────────────
     buildCommand: npm install && npm run build:frontend
     startCommand: node server.js
     envVars:
@@ -17,8 +22,48 @@ services:
         value: "10000"  # Render assigns port 10000 by default; the app reads process.env.PORT
       - key: NODE_ENV
         value: production
+      # Comma-separated list of your production domain(s) for CORS
+      # Example: https://govconscanner.com,https://www.govconscanner.com
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # ── Database ─────────────────────────────────────────────────────────
+      # Get a free cluster at https://cloud.mongodb.com — set manually in Render dashboard
+      - key: MONGODB_URI
+        sync: false
+
+      # ── Authentication (JWT) ──────────────────────────────────────────────
+      # Generate: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+
+      # ── SAM.gov API ───────────────────────────────────────────────────────
+      # Register at https://api.data.gov/signup/ — set manually in Render dashboard
+      - key: SAM_API_KEY
+        sync: false
+
+      # ── Email ─────────────────────────────────────────────────────────────
+      # Option A: Gmail App Password (not your real password)
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASSWORD
+        sync: false
+      # Option B: SendGrid API key (uncomment and set in Render dashboard instead)
+      # - key: SENDGRID_API_KEY
+      #   sync: false
+      - key: EMAIL_FROM
+        sync: false
+
+      # ── Stripe ────────────────────────────────────────────────────────────
+      - key: STRIPE_PAYMENT_LINK
+        sync: false
+
+      # ── Datadog APM (optional) ────────────────────────────────────────────
+      # Leave DD_ENABLED as "false" unless you have a Datadog account configured
       - key: DD_ENABLED
-        value: "false"  # Set to "true" and configure DD_* vars only if you use Datadog
+        value: "false"
       - key: DD_SERVICE
         value: govcon-ai-scanner
       - key: DD_ENV
