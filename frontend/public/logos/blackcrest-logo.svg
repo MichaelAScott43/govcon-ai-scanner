@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60" role="img" aria-label="BlackCrest Sourcing Group">
+  <title>BlackCrest Sourcing Group</title>
+  <!-- Shield/crest icon -->
+  <g transform="translate(4, 4)">
+    <path d="M26 0 L52 8 L52 30 Q52 48 26 56 Q0 48 0 30 L0 8 Z" fill="#c79d3b"/>
+    <path d="M26 4 L48 11 L48 30 Q48 45 26 52 Q4 45 4 30 L4 11 Z" fill="#9a7724"/>
+    <!-- BC monogram -->
+    <text x="26" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="#ffffff" letter-spacing="-1">BC</text>
+  </g>
+  <!-- Company name text -->
+  <text x="64" y="22" font-family="Georgia, 'Times New Roman', serif" font-size="14" font-weight="bold" fill="#14243a" letter-spacing="0.5">BlackCrest</text>
+  <text x="64" y="40" font-family="Arial, sans-serif" font-size="10" fill="#9a7724" letter-spacing="1">SOURCING GROUP</text>
+</svg>

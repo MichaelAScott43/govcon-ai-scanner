@@ -19,39 +19,38 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between shadow-lg">
+    <header className="border-b px-6 py-3 flex items-center justify-between" style={{ background: "#ffffff", borderColor: "rgba(20,36,58,0.12)", boxShadow: "0 2px 8px rgba(20,36,58,0.06)" }}>
       {/* Left: BlackCrest logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-base leading-none">B</span>
-        </div>
-        <div className="hidden sm:block">
-          <div className="text-white font-bold text-xs leading-tight">BlackCrest</div>
-          <div className="text-amber-400 text-xs leading-tight">Sourcing Group</div>
-        </div>
+      <div className="flex items-center">
+        <img
+          src="/logos/blackcrest-logo.svg"
+          alt="BlackCrest Sourcing Group"
+          className="h-9 w-auto object-contain"
+        />
       </div>
 
       {/* Center: App title */}
       <div className="flex items-center gap-2">
-        <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
+        <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: "#14243a" }}>
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <span className="text-white font-semibold text-sm hidden sm:inline">GovCon AI Scanner</span>
+        <span className="font-semibold text-sm hidden sm:inline" style={{ color: "#14243a" }}>GovCon AI Scanner</span>
       </div>
 
       {/* Right: User info + logout */}
       <div className="flex items-center gap-4">
         {user && (
-          <span className="text-slate-400 text-xs hidden md:inline">
+          <span className="text-xs hidden md:inline" style={{ color: "#5d6b7c" }}>
             {user.email}
           </span>
         )}
         <button
           onClick={handleLogout}
-          className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
+          className="text-sm font-medium transition-colors text-slate-500 hover:text-slate-800"
+          style={{ background: "none", border: "none", cursor: "pointer" }}
         >
           Logout
         </button>

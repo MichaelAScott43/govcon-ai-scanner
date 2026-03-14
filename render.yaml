@@ -2,9 +2,15 @@ services:
   - type: web
     name: govcon-ai-scanner
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run build:frontend
     startCommand: node server.js
     envVars:
+      - key: MONGODB_URI
+        sync: false   # Set to your MongoDB Atlas connection string in the Render dashboard
+      - key: JWT_SECRET
+        sync: false   # Set to a strong random secret (min 32 chars) in the Render dashboard
+      - key: JWT_REFRESH_SECRET
+        sync: false   # Optional separate refresh token secret; defaults to JWT_SECRET if not set
       - key: SAM_API_KEY
         sync: false   # Must be set manually in the Render dashboard — never commit the real value here
       - key: PORT
@@ -17,3 +23,36 @@ services:
         value: govcon-ai-scanner
       - key: DD_ENV
         value: production
+
+  - type: web
+    name: govcon-opportunity-intelligence
+    runtime: python
+    rootDir: intelligence
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SAM_API_KEY
+        sync: false   # Same key as the Node service — set once in the Render dashboard
+      - key: SQLITE_DB_PATH
+        value: "intelligence.db"
+      - key: INTELLIGENCE_DAYS_BACK
+        value: "30"
+      - key: INTELLIGENCE_MAX_RECORDS
+        value: "500"
+  # Optional: standalone Python intelligence microservice
+  # Deploy this service separately if you want to run the FastAPI intelligence
+  # module independently from the Node.js backend.
+  - type: web
+    name: govcon-intelligence
+    runtime: python
+    buildCommand: pip install -r intelligence/requirements.txt
+    startCommand: uvicorn intelligence.routes:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SAM_API_KEY
+        sync: false   # Must be set manually in the Render dashboard
+      - key: PORT
+        value: "10001"
+      - key: INTEL_PORT
+        value: "10001"
+      - key: INTELLIGENCE_DB_PATH
+        value: "/tmp/intelligence.db"

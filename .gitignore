@@ -9,3 +9,9 @@ frontend/dist
 *.log
 node_modules/
 *.tgz
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+intelligence/intelligence.db

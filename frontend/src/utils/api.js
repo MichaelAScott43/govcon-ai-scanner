@@ -93,4 +93,14 @@ export const emailApi = {
   sendDailyDigest: () => api.post("/api/email/send-daily-digest")
 };
 
+// Opportunity Intelligence (Python FastAPI service)
+const INTELLIGENCE_BASE = import.meta.env.VITE_INTELLIGENCE_URL || "";
+
+export const intelligenceApi = {
+  get: () =>
+    axios.get(`${INTELLIGENCE_BASE}/opportunity-intelligence`),
+  refresh: () =>
+    axios.post(`${INTELLIGENCE_BASE}/opportunity-intelligence/refresh`)
+};
+
 export default api;
