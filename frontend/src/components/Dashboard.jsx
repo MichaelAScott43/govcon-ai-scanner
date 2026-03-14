@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Header from "./Header.jsx";
 import SearchForm from "./SearchForm.jsx";
 import AnalysisResults from "./AnalysisResults.jsx";
+import OpportunityIntelligence from "./OpportunityIntelligence.jsx";
 import { opportunitiesApi, emailApi } from "../utils/api.js";
 import { getUser } from "../utils/auth.js";
 
@@ -81,6 +82,14 @@ function SkeletonCard() {
     </div>
   );
 }
+const TABS = [
+  { id: "search", label: "SAM.gov Search" },
+  { id: "analyze", label: "Document Analysis" },
+  { id: "intelligence", label: "Intelligence" },
+  { id: "saved", label: "Saved Opportunities" },
+  { id: "intelligence", label: "Opportunity Intelligence" },
+  { id: "email", label: "Email Settings" }
+];
 
 function OpportunityCard({ opp, onSave, saved }) {
   const daysUntilDue = opp.responseDeadLine
@@ -100,6 +109,8 @@ function OpportunityCard({ opp, onSave, saved }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-navy-700 hover:text-navy-900 font-semibold text-sm block leading-snug group-hover:underline"
+            className="font-medium text-sm block truncate"
+            style={{ color: "#14243a" }}
           >
             {opp.title || "Untitled Opportunity"}
           </a>
@@ -329,6 +340,18 @@ function NonClassifiedTab() {
             publicly available solicitation documents only.
           </p>
         </div>
+        <button
+          onClick={() => onSave(opp)}
+          disabled={saved}
+          className={`shrink-0 text-xs px-3 py-1.5 rounded-md font-medium border transition-colors ${
+            saved
+              ? "bg-green-50 text-green-700 border-green-200 cursor-default"
+              : "bg-white border-slate-300 hover:border-[#14243a]"
+          }`}
+          style={!saved ? { color: "#5d6b7c" } : {}}
+        >
+          {saved ? "Saved" : "Save"}
+        </button>
       </div>
     </div>
   );
@@ -471,7 +494,7 @@ export default function Dashboard() {
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col" style={{ background: "#f7fafe" }}>
       <Header />
 
       {/* ── Hero metrics bar ── */}
@@ -506,6 +529,15 @@ export default function Dashboard() {
             <StatCard label="Compliance Rate" value="92%" sub="FAR/DFARS reviewed" accent="purple"
               icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </div>
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+        {/* Welcome bar */}
+        <div className="mb-6">
+          <h1 className="text-xl font-bold" style={{ color: "#14243a" }}>
+            Welcome back{user?.name ? `, ${user.name}` : ""}!
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: "#5d6b7c" }}>
+            Your GovCon AI Scanner dashboard
+          </p>
         </div>
       </div>
 
@@ -522,6 +554,15 @@ export default function Dashboard() {
                   ? "border-navy-600 text-navy-700 bg-white"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
+        <div className="flex gap-1 mb-6 border-b overflow-x-auto" style={{ borderColor: "rgba(20,36,58,0.12)" }}>
+          {TABS.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors`}
+              style={tab === id
+                ? { borderColor: "#14243a", color: "#14243a" }
+                : { borderColor: "transparent", color: "#5d6b7c" }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
@@ -653,6 +694,7 @@ export default function Dashboard() {
                       type="file"
                       accept=".pdf,.docx,.txt"
                       className="hidden"
+                      className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#edf3fb] file:text-[#14243a] hover:file:bg-[#dce8f7] cursor-pointer"
                     />
                   </div>
                   <div className="flex items-center gap-3">
@@ -699,6 +741,8 @@ export default function Dashboard() {
 
         {/* ── Non-Classified ── */}
         {tab === "nonclass" && <NonClassifiedTab />}
+        {/* ── Opportunity Intelligence ── */}
+        {tab === "intelligence" && <OpportunityIntelligence />}
 
         {/* ── Saved Opportunities ── */}
         {tab === "saved" && (
@@ -772,6 +816,42 @@ export default function Dashboard() {
                       <div className="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:bg-navy-600 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
                     </label>
                   </div>
+        {/* ── Opportunity Intelligence ── */}
+        {tab === "intelligence" && <OpportunityIntelligence />}
+
+        {/* ── Email Settings ── */}
+        {tab === "email" && (
+          <div className="card max-w-lg">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Daily Email Digest Settings</h2>
+
+            {emailPrefs ? (
+              <form onSubmit={handleSaveEmailPrefs} className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="emailEnabled"
+                    checked={emailPrefs.enabled}
+                    onChange={(e) => setEmailPrefs((p) => ({ ...p, enabled: e.target.checked }))}
+                    className="rounded border-slate-300"
+                    style={{ accentColor: "#14243a" }}
+                  />
+                  <label htmlFor="emailEnabled" className="text-sm font-medium text-slate-700">
+                    Enable daily opportunity digest
+                  </label>
+                </div>
+
+                <div>
+                  <label className="label">Frequency</label>
+                  <select
+                    className="input"
+                    value={emailPrefs.frequency}
+                    onChange={(e) => setEmailPrefs((p) => ({ ...p, frequency: e.target.value }))}
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="never">Never</option>
+                  </select>
+                </div>
 
                   <div>
                     <label className="label">Frequency</label>

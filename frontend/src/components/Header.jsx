@@ -88,6 +88,40 @@ export default function Header() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
           </svg>
+    <header className="border-b px-6 py-3 flex items-center justify-between" style={{ background: "#ffffff", borderColor: "rgba(20,36,58,0.12)", boxShadow: "0 2px 8px rgba(20,36,58,0.06)" }}>
+      {/* Left: BlackCrest logo */}
+      <div className="flex items-center">
+        <img
+          src="/logos/blackcrest-logo.svg"
+          alt="BlackCrest Sourcing Group"
+          className="h-9 w-auto object-contain"
+        />
+      </div>
+
+      {/* Center: App title */}
+      <div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: "#14243a" }}>
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <span className="font-semibold text-sm hidden sm:inline" style={{ color: "#14243a" }}>GovCon AI Scanner</span>
+      </div>
+
+      {/* Right: User info + logout */}
+      <div className="flex items-center gap-4">
+        {user && (
+          <span className="text-xs hidden md:inline" style={{ color: "#5d6b7c" }}>
+            {user.email}
+          </span>
+        )}
+        <button
+          onClick={handleLogout}
+          className="text-sm font-medium transition-colors text-slate-500 hover:text-slate-800"
+          style={{ background: "none", border: "none", cursor: "pointer" }}
+        >
+          Logout
         </button>
 
         {/* Profile dropdown */}

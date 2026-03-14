@@ -15,6 +15,7 @@
 - 🔐 **JWT Authentication** — secure login / registration with refresh tokens
 - 💾 **MongoDB Persistence** — users, saved opportunities, email preferences
 - ⚡ **React + Tailwind CSS** — modern responsive frontend with both logos
+- 🧠 **Opportunity Intelligence** — cross-database trend analysis across SAM.gov, USASpending.gov, SBIR.gov, and Grants.gov
 
 ## Quick Start
 
@@ -60,6 +61,8 @@ See [docs/SETUP.md](docs/SETUP.md) for full setup, API reference, and deployment
 | `POST /api/opportunities/search` | Search SAM.gov by NAICS |
 | `POST /api/opportunities/analyze` | Analyze document |
 | `GET /api/opportunities` | Get saved opportunities |
+| `GET /api/opportunity-intelligence` | Get opportunity intelligence report |
+| `POST /api/opportunity-intelligence/refresh` | Refresh from all federal databases |
 | `POST /api/email-preferences/preferences/update` | Set email preferences |
 | `POST /api/email/send-daily-digest` | Trigger daily email |
 | `GET /health` | Health check |
@@ -68,7 +71,8 @@ See [docs/SETUP.md](docs/SETUP.md) for full setup, API reference, and deployment
 
 - **Backend:** Node.js, Express, MongoDB (Mongoose), JWT, bcryptjs, Nodemailer
 - **Frontend:** React 18, React Router, Tailwind CSS, Vite, Axios
-- **Services:** SAM.gov OpenGov API, Gmail / SendGrid
+- **Services:** SAM.gov, USASpending.gov, SBIR.gov, Grants.gov, Gmail / SendGrid
+- **Intelligence:** Multi-source NAICS-filtered opportunity analysis with trend scoring (also available as a standalone Python/FastAPI microservice in `intelligence/`)
 - **Monitoring:** Datadog APM (optional)
 
 ## Pricing & Payments

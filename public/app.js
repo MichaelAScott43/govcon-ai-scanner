@@ -301,6 +301,22 @@ pasteForm.addEventListener("submit", (e) => {
   renderAnalysis(mockAnalysis);
 });
 
+// Pre-populate SAM search dates: default to last 30 days
+(function setDefaultSamDates() {
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const toHtmlDateValue = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  const postedFromEl = document.getElementById("postedFrom");
+  const postedToEl = document.getElementById("postedTo");
+
+  if (postedFromEl && !postedFromEl.value) postedFromEl.value = toHtmlDateValue(thirtyDaysAgo);
+  if (postedToEl && !postedToEl.value) postedToEl.value = toHtmlDateValue(today);
+})();
+
 samSearchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -312,7 +328,8 @@ samSearchForm.addEventListener("submit", async (e) => {
     keyword: document.getElementById("keyword").value.trim(),
     naics: document.getElementById("naics").value.trim(),
     psc: document.getElementById("psc").value.trim(),
-    setAside: setAsideEl ? setAsideEl.value.trim() : ""
+    setAside: setAsideEl ? setAsideEl.value.trim() : "",
+    noticeType: (document.getElementById("noticeType")?.value || "").trim()
   });
 
   if (!params.get("postedFrom") || !params.get("postedTo")) {

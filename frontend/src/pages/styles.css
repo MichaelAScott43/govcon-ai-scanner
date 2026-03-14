@@ -13,6 +13,9 @@
   }
   * {
     @apply box-border;
+    @apply antialiased;
+    background: #f7fafe;
+    color: #14243a;
   }
 }
 
@@ -26,7 +29,17 @@
            shadow-sm hover:shadow
            transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2
+    @apply font-semibold py-2.5 px-6 rounded-lg
+           transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
+    background: #14243a;
+    color: #ffffff;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #1e3553;
+  }
+  .btn-primary:focus {
+    --tw-ring-color: #14243a;
   }
   .btn-secondary {
     @apply inline-flex items-center gap-2
@@ -56,7 +69,18 @@
            shadow-sm
            transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+    @apply bg-white font-semibold py-2.5 px-6 rounded-lg
+           border transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
+    color: #14243a;
+    border-color: #c8d5e6;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: #edf3fb;
+  }
+  .btn-secondary:focus {
+    --tw-ring-color: #14243a;
   }
   .btn-icon {
     @apply p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100
@@ -84,6 +108,19 @@
            transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-navy-500
            appearance-none cursor-pointer;
+           focus:outline-none focus:ring-2
+           placeholder-slate-400 text-sm;
+    border: 1px solid #c8d5e6;
+    background: #fbfdff;
+    color: #14243a;
+  }
+  .input:focus {
+    border-color: #14243a;
+    --tw-ring-color: rgba(20, 36, 58, 0.12);
+  }
+  .label {
+    @apply block text-sm font-medium mb-1;
+    color: #14243a;
   }
 
   /* ── Cards ── */
@@ -158,6 +195,9 @@
     @apply flex items-center gap-2.5
            bg-emerald-600 text-white text-sm font-medium
            px-4 py-3 rounded-xl shadow-lg;
+    @apply bg-white rounded-xl p-6;
+    border: 1px solid rgba(20, 36, 58, 0.12);
+    box-shadow: 0 4px 16px rgba(20, 36, 58, 0.06);
   }
   .toast-error {
     @apply flex items-center gap-2.5

@@ -17,8 +17,7 @@ import tracer from "dd-trace";
 dotenv.config();
 
 const isEnabled =
-  process.env.DD_ENABLED === "true" ||
-  process.env.NODE_ENV === "production";
+  process.env.DD_ENABLED === "true";
 
 if (isEnabled) {
   tracer.init({
@@ -58,7 +57,7 @@ if (isEnabled) {
   );
 } else {
   console.log(
-    "[Datadog] APM disabled. Set DD_ENABLED=true (or NODE_ENV=production) to activate."
+    "[Datadog] APM disabled. Set DD_ENABLED=true to activate."
   );
 }
 
