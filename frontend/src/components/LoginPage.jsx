@@ -82,7 +82,7 @@ export default function LoginPage() {
         {/* BlackCrest Sourcing Group — top left */}
         <div className="flex items-center">
           <img
-            src="/logos/blackcrest-logo.svg"
+            src="/logos/blackcrest-logo.png"
             alt="BlackCrest Sourcing Group"
             className="h-12 w-auto object-contain"
           />
@@ -91,7 +91,7 @@ export default function LoginPage() {
         {/* GovCon AI Scanner — top right */}
         <div className="flex items-center">
           <img
-            src="/logos/govcon-logo.svg"
+            src="/logos/govcon-logo.png"
             alt="GovCon AI Scanner"
             className="h-12 w-auto object-contain"
           />

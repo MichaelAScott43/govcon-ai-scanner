@@ -23,7 +23,7 @@ export default function Header() {
       {/* Left: BlackCrest logo */}
       <div className="flex items-center">
         <img
-          src="/logos/blackcrest-logo.svg"
+          src="/logos/blackcrest-logo.png"
           alt="BlackCrest Sourcing Group"
           className="h-9 w-auto object-contain"
         />
