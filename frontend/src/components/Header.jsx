@@ -49,10 +49,8 @@ export default function Header() {
         )}
         <button
           onClick={handleLogout}
-          className="text-sm font-medium transition-colors"
-          style={{ color: "#5d6b7c", background: "none", border: "none", cursor: "pointer" }}
-          onMouseOver={(e) => e.currentTarget.style.color = "#14243a"}
-          onMouseOut={(e) => e.currentTarget.style.color = "#5d6b7c"}
+          className="text-sm font-medium transition-colors text-slate-500 hover:text-slate-800"
+          style={{ background: "none", border: "none", cursor: "pointer" }}
         >
           Logout
         </button>
