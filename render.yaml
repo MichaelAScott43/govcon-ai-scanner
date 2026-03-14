@@ -5,14 +5,30 @@ services:
     buildCommand: npm install && npm run build:frontend
     startCommand: node server.js
     envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
       - key: SAM_API_KEY
-        sync: false   # Must be set manually in the Render dashboard — never commit the real value here
+        sync: false
       - key: PORT
-        value: "10000"  # Render assigns port 10000 by default; the app reads process.env.PORT
+        value: "10000"
       - key: NODE_ENV
         value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: STRIPE_PAYMENT_LINK
+        sync: false
       - key: DD_ENABLED
-        value: "false"  # Set to "true" and configure DD_* vars only if you use Datadog
+        value: "false"
       - key: DD_SERVICE
         value: govcon-ai-scanner
       - key: DD_ENV
@@ -26,16 +42,14 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: SAM_API_KEY
-        sync: false   # Same key as the Node service — set once in the Render dashboard
+        sync: false
       - key: SQLITE_DB_PATH
         value: "intelligence.db"
       - key: INTELLIGENCE_DAYS_BACK
         value: "30"
       - key: INTELLIGENCE_MAX_RECORDS
         value: "500"
-  # Optional: standalone Python intelligence microservice
-  # Deploy this service separately if you want to run the FastAPI intelligence
-  # module independently from the Node.js backend.
+
   - type: web
     name: govcon-intelligence
     runtime: python
@@ -43,7 +57,7 @@ services:
     startCommand: uvicorn intelligence.routes:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: SAM_API_KEY
-        sync: false   # Must be set manually in the Render dashboard
+        sync: false
       - key: PORT
         value: "10001"
       - key: INTEL_PORT

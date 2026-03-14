@@ -76,9 +76,12 @@ router.get("/debug", async (req, res) => {
     return res.status(400).json({
       success: false,
       errorCode: "MISSING_API_KEY",
-      error: "SAM_API_KEY is not configured on the server. Add it to your .env file and restart."
+      error: "SAM_API_KEY is not configured on the server. Add it to your .env file and restart.",
+      hint: "Set SAM_API_KEY in your .env file and restart the server."
     });
   }
+
+  console.log("✅ SAM_API_KEY is present.");
 
   // Use a narrow date window (last 7 days) with just the required params
   const today = new Date();
@@ -88,23 +91,31 @@ router.get("/debug", async (req, res) => {
   const formatDate = (d) =>
     `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
 
+  const postedFrom = formatDate(weekAgo);
+  const postedTo = formatDate(today);
+
+  console.log("🔍 Debug using date range:", postedFrom, "→", postedTo);
+
   try {
     const data = await searchOpportunities({
-      postedFrom: formatDate(weekAgo),
-      postedTo: formatDate(today),
+      postedFrom,
+      postedTo,
       limit: 1
     });
 
     res.json({
       success: true,
       message: "SAM API connectivity confirmed.",
+      dateRange: { postedFrom, postedTo },
       totalRecords: data.totalRecords ?? null
     });
   } catch (error) {
     console.error("SAM debug Error:", error?.message);
-    res.status(500).json({
+    res.status(error?.statusCode || 500).json({
       success: false,
-      error: error?.message || "SAM connectivity check failed"
+      errorCode: error?.code || null,
+      error: error?.message || "SAM connectivity check failed",
+      hint: "Verify SAM_API_KEY is valid and that the SAM.gov API is reachable from this server."
     });
   }
 });

@@ -1,3 +1,19 @@
+openapi: 3.0.3
+
+info:
+  title: GovCon AI Scanner API
+  description: |
+    # GovCon AI Scanner — REST API Reference
+
+    The GovCon AI Scanner helps government contractors discover, analyze, and
+    track opportunities from SAM.gov.  Use this API to integrate opportunity
+    data into your ERP or build custom workflows.
+
+    ## Authentication
+
+    All protected endpoints require a **Bearer** access token obtained via
+    `POST /api/auth/login`.  Tokens expire after **15 minutes**; use
+    `POST /api/auth/refresh` with your refresh token to obtain a new pair.
 openapi: "3.0.3"
 info:
   title: GovCon AI Scanner API
@@ -14,6 +30,49 @@ info:
     Authorization: Bearer <access_token>
     ```
 
+    ## Rate Limiting
+
+    | Endpoint group        | Limit                 |
+    |-----------------------|-----------------------|
+    | `/api/auth/*`         | 30 requests / 15 min  |
+    | `/api/opportunities/*`| 200 requests / 15 min |
+    | `/api/email*`         | 200 requests / 15 min |
+    | `/api/admin/*`        | 60 requests / 15 min  |
+
+    When exceeded the API returns **429 Too Many Requests** with:
+    ```json
+    { "success": false, "error": "Too many requests. Please try again later." }
+    ```
+
+    ## Error Codes
+
+    | HTTP Code | Meaning |
+    |-----------|---------|
+    | 400       | Bad Request — missing or invalid fields |
+    | 401       | Unauthorized — missing, expired, or invalid token |
+    | 403       | Forbidden — valid token but insufficient permissions |
+    | 404       | Not Found |
+    | 409       | Conflict — e.g. email already registered |
+    | 429       | Too Many Requests |
+    | 500       | Internal Server Error |
+
+    ## Webhooks (Stripe)
+
+    Stripe sends signed webhook events to your server.  Events include:
+    - `customer.subscription.created`
+    - `customer.subscription.deleted`
+    - `invoice.payment_succeeded`
+    - `invoice.payment_failed`
+
+    Validate the `Stripe-Signature` header using your `STRIPE_WEBHOOK_SECRET`
+    before processing any event.
+
+  version: "2.0.0"
+  contact:
+    name: GovCon AI Scanner Support
+    email: support@govconscanner.com
+  license:
+    name: Proprietary
     Tokens are obtained via `/api/auth/login` or `/api/auth/register` and expire after **15 minutes**.
     Use `/api/auth/refresh` with your `refreshToken` (valid for 7 days) to get a new access token
     without requiring the user to log in again.
@@ -67,6 +126,25 @@ servers:
 
 tags:
   - name: Auth
+    description: Registration, login, token refresh
+  - name: Opportunities
+    description: SAM.gov search, document analysis, saved opportunities
+  - name: Email
+    description: Email preferences and daily digest
+  - name: Admin – Users
+    description: Admin user management (admin role required)
+  - name: Admin – Analytics
+    description: Admin analytics and insights (admin role required)
+  - name: Admin – Subscriptions
+    description: Admin subscription management (admin role required)
+  - name: Admin – System
+    description: Admin system health and operations (admin role required)
+  - name: System
+    description: Health check
+
+# ---------------------------------------------------------------------------
+# Security Schemes
+# ---------------------------------------------------------------------------
     description: User registration, login, token refresh, and profile management
   - name: Opportunities
     description: Search SAM.gov, save opportunities, and analyze documents
@@ -90,6 +168,10 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+  # -------------------------------------------------------------------------
+  # Reusable Schemas
+  # -------------------------------------------------------------------------
+  schemas:
   schemas:
     Error:
       type: object
@@ -126,6 +208,17 @@ components:
       properties:
         id:
           type: string
+          example: "64a7b2c3d4e5f6a7b8c9d0e1"
+        email:
+          type: string
+          format: email
+          example: "jane@example.com"
+        name:
+          type: string
+          example: "Jane Smith"
+        company:
+          type: string
+          example: "Acme Federal LLC"
           example: "64f1a2b3c4d5e6f7a8b9c0d1"
         email:
           type: string
@@ -141,6 +234,24 @@ components:
           type: array
           items:
             type: string
+          example: ["541511", "541330"]
+        role:
+          type: string
+          enum: [user, admin]
+          example: user
+        createdAt:
+          type: string
+          format: date-time
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Short-lived JWT (15 min)
+        refreshToken:
+          type: string
+          description: Long-lived refresh token (7 days)
           example: ["541330", "541512", "336411"]
         role:
           type: string
@@ -156,6 +267,101 @@ components:
       properties:
         noticeId:
           type: string
+          example: "ABC123"
+        title:
+          type: string
+          example: "IT Modernization Services"
+        solicitationNumber:
+          type: string
+        agency:
+          type: string
+          example: "Department of Defense"
+        office:
+          type: string
+        naicsCode:
+          type: string
+          example: "541511"
+        pscCode:
+          type: string
+        setAside:
+          type: string
+          example: "Small Business"
+        noticeType:
+          type: string
+        postedDate:
+          type: string
+          format: date
+        responseDeadLine:
+          type: string
+          format: date-time
+        uiLink:
+          type: string
+          format: uri
+        bidScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        recommendation:
+          type: string
+          enum: [BID, NO-BID, REVIEW]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Descriptive error message"
+
+  # -------------------------------------------------------------------------
+  # Reusable Parameters
+  # -------------------------------------------------------------------------
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    UserIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+
+  # ==========================================================================
+  # AUTH
+  # ==========================================================================
+
           example: "fa7bc123456789"
         title:
           type: string
@@ -269,6 +475,9 @@ paths:
                 email:
                   type: string
                   format: email
+                  example: "jane@example.com"
+                password:
+                  type: string
                   example: "jane.doe@acme.gov"
                 password:
                   type: string
@@ -277,6 +486,10 @@ paths:
                   example: "Str0ng!Pass"
                 name:
                   type: string
+                  example: "Jane Smith"
+                company:
+                  type: string
+                  example: "Acme Federal LLC"
                   example: "Jane Doe"
                 company:
                   type: string
@@ -285,6 +498,24 @@ paths:
                   type: array
                   items:
                     type: string
+                  example: ["541511"]
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/TokenPair"
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      user:
+                        $ref: "#/components/schemas/User"
+        "409":
+          description: Email already registered
                   example: ["541330", "541512"]
             examples:
               basic:
@@ -329,10 +560,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl -X POST https://govcon-ai-scanner.onrender.com/api/auth/register \
+              -H "Content-Type: application/json" \
+              -d '{"email":"jane@example.com","password":"Str0ng!Pass","name":"Jane Smith"}'
+        - lang: JavaScript
+          source: |
+            const res = await fetch('/api/auth/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: 'jane@example.com', password: 'Str0ng!Pass' })
+            });
+            const { accessToken, user } = await res.json();
+        - lang: Python
+          source: |
+            import requests
+            r = requests.post('http://localhost:3000/api/auth/register',
+                              json={'email': 'jane@example.com', 'password': 'Str0ng!Pass'})
+            data = r.json()
 
   /api/auth/login:
     post:
       tags: [Auth]
+      summary: Login and obtain tokens
       summary: Log in and receive JWT tokens
       operationId: authLogin
       requestBody:
@@ -346,6 +598,23 @@ paths:
                 email:
                   type: string
                   format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/TokenPair"
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      user:
+                        $ref: "#/components/schemas/User"
                   example: "jane.doe@acme.gov"
                 password:
                   type: string
@@ -376,6 +645,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl -X POST https://govcon-ai-scanner.onrender.com/api/auth/login \
+              -H "Content-Type: application/json" \
+              -d '{"email":"jane@example.com","password":"Str0ng!Pass"}'
 
   /api/auth/refresh:
     post:
@@ -398,6 +673,15 @@ paths:
           content:
             application/json:
               schema:
+                allOf:
+                  - $ref: "#/components/schemas/TokenPair"
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+        "403":
+          description: Invalid or expired refresh token
                 type: object
                 properties:
                   success:
@@ -417,6 +701,7 @@ paths:
   /api/auth/logout:
     post:
       tags: [Auth]
+      summary: Logout (invalidates refresh token)
       summary: Log out (invalidate refresh token)
       operationId: authLogout
       security:
@@ -445,6 +730,7 @@ paths:
         - bearerAuth: []
       responses:
         "200":
+          description: User profile
           description: Profile retrieved
           content:
             application/json:
@@ -470,6 +756,8 @@ paths:
               properties:
                 name:
                   type: string
+                company:
+                  type: string
                   example: "Jane Smith"
                 company:
                   type: string
@@ -478,6 +766,14 @@ paths:
                   type: array
                   items:
                     type: string
+      responses:
+        "200":
+          description: Updated profile
+
+  # ==========================================================================
+  # OPPORTUNITIES
+  # ==========================================================================
+
                   example: ["541330"]
       responses:
         "200":
@@ -509,6 +805,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                postedFrom:
+                  type: string
+                  format: date
+                  example: "2024-01-01"
+                postedTo:
+                  type: string
+                  format: date
+                  example: "2024-12-31"
               required: [postedFrom, postedTo]
               properties:
                 postedFrom:
@@ -524,6 +829,9 @@ paths:
                   example: "cybersecurity"
                 naics:
                   type: string
+                  example: "541511"
+                psc:
+                  type: string
                   example: "541512"
                 psc:
                   type: string
@@ -533,12 +841,14 @@ paths:
                   example: "SBA"
                 noticeType:
                   type: string
+                  example: "Solicitation"
                   example: "o"
                 page:
                   type: integer
                   default: 1
                 limit:
                   type: integer
+                  default: 25
                   default: 100
                   maximum: 1000
       responses:
@@ -551,6 +861,37 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Opportunity"
+                  total:
+                    type: integer
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl -X POST https://govcon-ai-scanner.onrender.com/api/opportunities/search \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{"keyword":"cybersecurity","naics":"541511","postedFrom":"2024-01-01"}'
+        - lang: JavaScript
+          source: |
+            const res = await fetch('/api/opportunities/search', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ keyword: 'cybersecurity', naics: '541511' })
+            });
+            const { data } = await res.json();
+        - lang: Python
+          source: |
+            import requests
+            r = requests.post('http://localhost:3000/api/opportunities/search',
+                              headers={'Authorization': f'Bearer {token}'},
+                              json={'keyword': 'cybersecurity', 'naics': '541511'})
+            opportunities = r.json()['data']
                     example: true
                   totalRecords:
                     type: integer
@@ -566,12 +907,14 @@ paths:
   /api/opportunities:
     get:
       tags: [Opportunities]
+      summary: Get saved opportunities for current user
       summary: Get user's saved opportunities
       operationId: getSavedOpportunities
       security:
         - bearerAuth: []
       responses:
         "200":
+          description: Saved opportunities list
           description: Saved opportunities
           content:
             application/json:
@@ -580,6 +923,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  data:
                     example: true
                   opportunities:
                     type: array
@@ -589,6 +933,7 @@ paths:
   /api/opportunities/save:
     post:
       tags: [Opportunities]
+      summary: Save an opportunity
       summary: Save an opportunity to the user's list
       operationId: saveOpportunity
       security:
@@ -598,6 +943,10 @@ paths:
         content:
           application/json:
             schema:
+              $ref: "#/components/schemas/Opportunity"
+      responses:
+        "200":
+          description: Opportunity saved
               type: object
               required: [opportunity]
               properties:
@@ -620,6 +969,15 @@ paths:
   /api/opportunities/analyze:
     post:
       tags: [Opportunities]
+      summary: Analyze a document for bid scoring
+      description: |
+        Upload a PDF, DOCX, or TXT file.  The service parses the text,
+        detects FAR/DFARS clauses, and returns a bid score (0-100) with a
+        BID / NO-BID / REVIEW recommendation.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
       summary: Analyze a solicitation document (bid/no-bid scoring)
       operationId: analyzeDocument
       security:
@@ -630,6 +988,13 @@ paths:
             schema:
               type: object
               properties:
+                document:
+                  type: string
+                  format: binary
+                  description: PDF, DOCX, or TXT solicitation document
+      responses:
+        "200":
+          description: Analysis results
                 file:
                   type: string
                   format: binary
@@ -666,6 +1031,38 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  bidScore:
+                    type: number
+                  recommendation:
+                    type: string
+                    enum: [BID, NO-BID, REVIEW]
+                  detectedClauses:
+                    type: array
+                    items:
+                      type: string
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl -X POST https://govcon-ai-scanner.onrender.com/api/opportunities/analyze \
+              -H "Authorization: Bearer $TOKEN" \
+              -F "document=@/path/to/solicitation.pdf"
+        - lang: Python
+          source: |
+            import requests
+            with open('solicitation.pdf', 'rb') as f:
+                r = requests.post('http://localhost:3000/api/opportunities/analyze',
+                                  headers={'Authorization': f'Bearer {token}'},
+                                  files={'document': f})
+            result = r.json()
+
+  # ==========================================================================
+  # EMAIL
+  # ==========================================================================
+
+  /api/email-preferences:
+    get:
+      tags: [Email]
+      summary: Get email preferences
                     example: true
                   message:
                     type: string
@@ -717,6 +1114,7 @@ paths:
   /api/email-preferences/preferences/update:
     post:
       tags: [Email]
+      summary: Update email preferences
       summary: Update email notification preferences
       operationId: updateEmailPreferences
       security:
@@ -748,6 +1146,10 @@ paths:
         "200":
           description: Preferences updated
 
+  /api/email/send-daily-digest:
+    post:
+      tags: [Email]
+      summary: Trigger a test daily digest email
   # ---------------------------------------------------------------------------
   # Admin – Dashboard
   # ---------------------------------------------------------------------------
@@ -761,6 +1163,50 @@ paths:
         - bearerAuth: []
       responses:
         "200":
+          description: Email sent
+
+  # ==========================================================================
+  # ADMIN – USERS
+  # ==========================================================================
+
+  /api/admin/users:
+    get:
+      tags: [Admin – Users]
+      summary: List all users
+      description: Paginated, filterable list of all user accounts. **Admin only.**
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: search
+          in: query
+          description: Search by email, name, or company
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [user, admin]
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated user list
           description: Dashboard metrics
           content:
             application/json:
@@ -855,6 +1301,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  data:
                     example: true
                   users:
                     type: array
@@ -867,6 +1314,23 @@ paths:
     get:
       tags: [Admin – Users]
       summary: Get user details and usage stats
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdParam"
+      responses:
+        "200":
+          description: User detail
+        "404":
+          description: User not found
+
+    patch:
+      tags: [Admin – Users]
+      summary: Update user (admin override)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdParam"
       operationId: adminGetUser
       security:
         - bearerAuth: []
@@ -936,6 +1400,17 @@ paths:
       responses:
         "200":
           description: User updated
+
+    delete:
+      tags: [Admin – Users]
+      summary: Deactivate user (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdParam"
+      responses:
+        "200":
+          description: User deactivated
           content:
             application/json:
               schema:
@@ -976,6 +1451,31 @@ paths:
   /api/admin/users/{id}/activity:
     get:
       tags: [Admin – Users]
+      summary: User activity log
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdParam"
+      responses:
+        "200":
+          description: Activity log
+
+  # ==========================================================================
+  # ADMIN – ANALYTICS
+  # ==========================================================================
+
+  /api/admin/dashboard:
+    get:
+      tags: [Admin – Analytics]
+      summary: Key dashboard metrics
+      description: |
+        Returns MAU, new registrations, opportunity counts, email subscriptions,
+        and month-over-month growth rate. **Admin only.**
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard metrics
       summary: Get user activity log (saved opportunities)
       operationId: adminGetUserActivity
       security:
@@ -1041,6 +1541,57 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                      opportunities:
+                        type: object
+                      email:
+                        type: object
+
+  /api/admin/analytics/usage:
+    get:
+      tags: [Admin – Analytics]
+      summary: Daily/weekly usage trends
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          description: Number of days to look back (7–90)
+          schema:
+            type: integer
+            default: 30
+      responses:
+        "200":
+          description: Usage trend data
+
+  /api/admin/analytics/revenue:
+    get:
+      tags: [Admin – Analytics]
+      summary: Subscription revenue breakdown
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Revenue analytics
+
+  /api/admin/analytics/features:
+    get:
+      tags: [Admin – Analytics]
+      summary: Feature usage statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Feature usage
+
+  /api/admin/analytics/search-trends:
+    get:
+      tags: [Admin – Analytics]
+      summary: Popular searches and NAICS codes
                     example: true
                   period:
                     type: string
@@ -1170,6 +1721,12 @@ paths:
         - bearerAuth: []
       responses:
         "200":
+          description: Search trends
+
+  # ==========================================================================
+  # ADMIN – SUBSCRIPTIONS
+  # ==========================================================================
+
           description: Revenue analytics
           content:
             application/json:
@@ -1211,6 +1768,19 @@ paths:
     get:
       tags: [Admin – Subscriptions]
       summary: List all subscriptions
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        "200":
+          description: Subscription list with MRR summary
       operationId: adminListSubscriptions
       security:
         - bearerAuth: []
@@ -1246,6 +1816,12 @@ paths:
   /api/admin/subscriptions/{userId}:
     get:
       tags: [Admin – Subscriptions]
+      summary: Get user subscription details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
       summary: Get subscription details for a user
       operationId: adminGetSubscription
       security:
@@ -1258,11 +1834,19 @@ paths:
             type: string
       responses:
         "200":
+          description: Subscription detail
           description: Subscription details
 
   /api/admin/subscriptions/{userId}/extend-trial:
     post:
       tags: [Admin – Subscriptions]
+      summary: Extend trial for a prospect
+      description: Re-activates the user account. Use this during demo calls.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
       summary: Extend trial period for a user
       operationId: adminExtendTrial
       security:
@@ -1282,6 +1866,11 @@ paths:
                 days:
                   type: integer
                   default: 30
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Trial extended
                   example: 15
                   description: Number of additional trial days to grant
                 note:
@@ -1305,6 +1894,15 @@ paths:
   /api/admin/subscriptions/{userId}/issue-refund:
     post:
       tags: [Admin – Subscriptions]
+      summary: Log a refund request
+      description: |
+        Records the refund request in the audit log.
+        Process the actual refund in the **Stripe Dashboard**.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
       summary: Record a refund (process in Stripe dashboard)
       operationId: adminIssueRefund
       security:
@@ -1323,6 +1921,20 @@ paths:
               properties:
                 amount:
                   type: number
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Refund request logged
+
+  # ==========================================================================
+  # ADMIN – SYSTEM
+  # ==========================================================================
+
+  /api/admin/health/system:
+    get:
+      tags: [Admin – System]
+      summary: Server metrics and uptime
                   example: 79.00
                 reason:
                   type: string
@@ -1353,6 +1965,7 @@ paths:
         - bearerAuth: []
       responses:
         "200":
+          description: System health metrics
           description: System metrics
           content:
             application/json:
@@ -1361,6 +1974,23 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [healthy, degraded]
+                      uptime:
+                        type: object
+                      memory:
+                        type: object
+                      integrations:
+                        type: object
+
+  /api/admin/health/integrations:
+    get:
+      tags: [Admin – System]
+      summary: Integration status (SAM API, Stripe, email)
                     example: true
                   system:
                     type: object
@@ -1388,6 +2018,25 @@ paths:
         - bearerAuth: []
       responses:
         "200":
+          description: Integration status
+
+  /api/admin/logs:
+    get:
+      tags: [Admin – System]
+      summary: System logs reference
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Log access instructions
+
+  /api/admin/system/restart:
+    post:
+      tags: [Admin – System]
+      summary: Initiate graceful server restart
+      description: |
+        Sends a `SIGTERM`-equivalent exit after flushing the response.
+        Your process manager (PM2 / Render) should restart automatically.
           description: Integration statuses
           content:
             application/json:
@@ -1461,12 +2110,35 @@ paths:
         - bearerAuth: []
       responses:
         "200":
+          description: Restart initiated
+
+  # ==========================================================================
+  # SYSTEM
+  # ==========================================================================
+
+  /health:
+    get:
+      tags: [System]
+      summary: Health check (no auth required)
+      responses:
+        "200":
+          description: Server is up
           description: Restart signal acknowledged
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  ok:
+                    type: boolean
+                  app:
+                    type: string
+                  env:
+                    type: string
+                  samConfigured:
+                    type: boolean
+                  mongoConfigured:
+                    type: boolean
                   success:
                     type: boolean
                     example: true

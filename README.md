@@ -71,6 +71,9 @@ See [docs/SETUP.md](docs/SETUP.md) for full setup, API reference, and deployment
 
 - **Backend:** Node.js, Express, MongoDB (Mongoose), JWT, bcryptjs, Nodemailer
 - **Frontend:** React 18, React Router, Tailwind CSS, Vite, Axios
+- **Services:** SAM.gov OpenGov API, Gmail / SendGrid
+- **Monitoring:** Datadog APM (optional)
+
 - **Services:** SAM.gov, USASpending.gov, SBIR.gov, Grants.gov, Gmail / SendGrid
 - **Intelligence:** Multi-source NAICS-filtered opportunity analysis with trend scoring (also available as a standalone Python/FastAPI microservice in `intelligence/`)
 - **Monitoring:** Datadog APM (optional)
