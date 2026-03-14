@@ -68,12 +68,14 @@ const apiLimiter = rateLimit({
   message: { success: false, error: "Too many requests. Please try again later." }
 });
 
+// Admin endpoints — tighter limit to protect sensitive operations
 // Stricter limit for admin endpoints — reduces blast radius if an admin token is compromised
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { success: false, error: "Too many requests. Please try again later." }
   message: { success: false, error: "Too many admin requests. Please try again later." }
 });
 
@@ -87,6 +89,8 @@ app.use("/api/email", apiLimiter, emailRouter);
 app.use("/api/email-preferences", apiLimiter, emailRouter);
 app.use("/api/admin", adminLimiter, adminRouter);
 
+// API Documentation (Swagger UI + raw spec) — no auth required
+app.use("/", docsRouter);
 // API Documentation (no auth required — publicly accessible, rate-limited within docsRouter)
 app.use(docsRouter);
 
