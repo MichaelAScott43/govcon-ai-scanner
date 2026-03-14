@@ -724,9 +724,9 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {(searchResults.opportunities || []).map((opp) => (
+                    {(searchResults.opportunities || []).map((opp, index) => (
                       <OpportunityCard
-                        key={opp.noticeId || Math.random()}
+                        key={opp.noticeId ?? `opp-${index}`}
                         opp={opp}
                         onSave={handleSave}
                         saved={savedIds.has(opp.noticeId)}
