@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import EmailPreference from "../models/EmailPreference.js";
 import { authenticateToken } from "../middleware/auth.js";
+import crypto from "crypto";
 
 const router = express.Router();
 
@@ -49,8 +50,9 @@ router.post("/register", async (req, res) => {
 
     const { accessToken, refreshToken } = generateTokens(user._id);
 
-    // Persist refresh token hash in DB (store plain for simplicity; rotate on use)
-    user.refreshToken = refreshToken;
+    // Persist refresh token hash in DB rather than the raw token
+    const refreshTokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+    user.refreshToken = refreshTokenHash;
     await user.save();
 
     res.status(201).json({
