@@ -26,6 +26,17 @@
           <span class="badge">FAR / DFARS Review</span>
           <span class="badge">Non-Classified Use Only</span>
         </div>
+        <div class="trial-banner" id="trialBanner">
+          <span id="trialMessage">🎉 30-Day Free Trial Active — enjoy full access!</span>
+          <a
+            id="upgradeNowBtn"
+            class="upgrade-btn"
+            href="https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="display:none"
+          >Upgrade Now</a>
+        </div>
       </div>
     </header>
 
@@ -121,6 +132,17 @@
             <div>
               <label class="field-label" for="postedTo">Posted To</label>
               <input type="date" id="postedTo" name="postedTo" />
+            </div>
+
+            <div>
+              <label class="field-label" for="noticeType">Notice Type</label>
+              <select id="noticeType" name="noticeType">
+                <option value="">Any</option>
+                <option value="o">Solicitation</option>
+                <option value="p">Presolicitation</option>
+                <option value="k">Combined Synopsis/Solicitation</option>
+                <option value="r">Sources Sought</option>
+              </select>
             </div>
 
             <div>
@@ -251,7 +273,30 @@
     <footer class="site-footer">
       <p>Designed for Non-Classified Use Only</p>
       <p>GovCon AI provides preliminary analysis and does not replace professional contract review.</p>
+      <p>
+        <a
+          class="upgrade-link"
+          href="https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Upgrade to Full Access</a>
+      </p>
     </footer>
+
+    <!-- Trial expired overlay -->
+    <div id="trialExpiredOverlay" class="trial-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="trialExpiredTitle">
+      <div class="trial-overlay-box">
+        <h2 id="trialExpiredTitle">Your Free Trial Has Ended</h2>
+        <p>Your 30-day free trial has expired. Upgrade now to continue using GovCon AI Scanner.</p>
+        <a
+          class="upgrade-btn upgrade-btn-large"
+          href="https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Upgrade Now →</a>
+      </div>
+    </div>
+
   </div>
 
   <script src="app.js"></script>

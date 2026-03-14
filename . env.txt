@@ -1,0 +1,48 @@
+PORT=3000
+NODE_ENV=development
+
+# REPLACE THIS with your MongoDB Atlas connection string
+MONGODB_URI=
+const { MongoClient, ServerApiVersion } = require('mongodb');
+MONGODB_URI=mongodb+srv://BlackCrestStrategic:DirkDiggler40!@blackcreststrategicgrou.oy2lxnl.mongodb.net/govcon?appName=BlackCrestStrategicGroup
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+
+# Keep these JWT secrets (or generate new ones)
+JWT_SECRET=9e3c7f2a1b8d4e6c9a5f3b7e2d1c8a4f6b9e3d2c5a8f1e4b7c9d2e5f8a1b3c6e9d2f5a8b1e4c7f0a3d6e9b2c5f8a1d4e7a0b3c6d9e2f5a8
+JWT_REFRESH_SECRET=7c2e9f1d3a5b8e4c6a9f2e5b7d0c3a8f1e4b6c9d2e5f8a1b4c7d0e3f6a9b2c5d8e1f4a7b0c3d6e9f2a5b8c1d4e7a0b3c6d9e2f
+
+# REPLACE with your actual SAM API key
+SAM_API_KEY=kaTfmJY2y5dGjChoZXtHOKHgvz6trwiOwC7788vf
+
+# NEW (Outlook/Office 365)
+GMAIL_USER=Michael@BlackCrestStrategicGroup.com
+GMAIL_PASSWORD=DirkDiggler40!
+
+# Keep these as-is (you already have Stripe configured)
+STRIPE_PAYMENT_LINK=https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02
+EMAIL_FROM=noreply@govconscanner.com
+
+# Keep Datadog disabled for development
+DD_ENABLED=false

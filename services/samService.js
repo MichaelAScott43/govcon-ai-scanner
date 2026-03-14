@@ -1,7 +1,3 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 const SAM_BASE_URL = "https://api.sam.gov/opportunities/v1/search";
 
 function cleanParams(params) {
@@ -12,17 +8,19 @@ function cleanParams(params) {
   );
 }
 
-function toIsoDate(value) {
+// SAM.gov API expects dates in MM/DD/YYYY format.
+function toSamDate(value) {
   if (!value) return value;
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+  // Already in MM/DD/YYYY — pass through unchanged
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
     return value;
   }
 
-  const parts = value.split("/");
-  if (parts.length === 3) {
-    const [month, day, year] = parts;
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  // Convert YYYY-MM-DD (ISO / HTML date input format) → MM/DD/YYYY
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split("-");
+    return `${month}/${day}/${year}`;
   }
 
   return value;
@@ -53,8 +51,8 @@ export async function searchOpportunities({
 
   const params = cleanParams({
     api_key: process.env.SAM_API_KEY,
-    postedFrom: toIsoDate(postedFrom),
-    postedTo: toIsoDate(postedTo),
+    postedFrom: toSamDate(postedFrom),
+    postedTo: toSamDate(postedTo),
     limit,
     offset,
     keyword,

@@ -1,0 +1,103 @@
+services:
+  - type: web
+    name: govcon-ai-scanner
+    runtime: node
+    # Install backend deps, then build the React frontend into frontend/dist/
+    buildCommand: npm install && npm run build:frontend
+    startCommand: node server.js
+    envVars:
+      # ── Server ──────────────────────────────────────────────────────────
+    buildCommand: npm install && npm run build:frontend
+    startCommand: node server.js
+    envVars:
+      - key: MONGODB_URI
+        sync: false   # Set to your MongoDB Atlas connection string in the Render dashboard
+      - key: JWT_SECRET
+        sync: false   # Set to a strong random secret (min 32 chars) in the Render dashboard
+      - key: JWT_REFRESH_SECRET
+        sync: false   # Optional separate refresh token secret; defaults to JWT_SECRET if not set
+      - key: SAM_API_KEY
+        sync: false   # Must be set manually in the Render dashboard — never commit the real value here
+      - key: PORT
+        value: "10000"  # Render assigns port 10000 by default; the app reads process.env.PORT
+      - key: NODE_ENV
+        value: production
+      # Comma-separated list of your production domain(s) for CORS
+      # Example: https://govconscanner.com,https://www.govconscanner.com
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # ── Database ─────────────────────────────────────────────────────────
+      # Get a free cluster at https://cloud.mongodb.com — set manually in Render dashboard
+      - key: MONGODB_URI
+        sync: false
+
+      # ── Authentication (JWT) ──────────────────────────────────────────────
+      # Generate: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+
+      # ── SAM.gov API ───────────────────────────────────────────────────────
+      # Register at https://api.data.gov/signup/ — set manually in Render dashboard
+      - key: SAM_API_KEY
+        sync: false
+
+      # ── Email ─────────────────────────────────────────────────────────────
+      # Option A: Gmail App Password (not your real password)
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASSWORD
+        sync: false
+      # Option B: SendGrid API key (uncomment and set in Render dashboard instead)
+      # - key: SENDGRID_API_KEY
+      #   sync: false
+      - key: EMAIL_FROM
+        sync: false
+
+      # ── Stripe ────────────────────────────────────────────────────────────
+      - key: STRIPE_PAYMENT_LINK
+        sync: false
+
+      # ── Datadog APM (optional) ────────────────────────────────────────────
+      # Leave DD_ENABLED as "false" unless you have a Datadog account configured
+      - key: DD_ENABLED
+        value: "false"
+      - key: DD_SERVICE
+        value: govcon-ai-scanner
+      - key: DD_ENV
+        value: production
+
+  - type: web
+    name: govcon-opportunity-intelligence
+    runtime: python
+    rootDir: intelligence
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SAM_API_KEY
+        sync: false   # Same key as the Node service — set once in the Render dashboard
+      - key: SQLITE_DB_PATH
+        value: "intelligence.db"
+      - key: INTELLIGENCE_DAYS_BACK
+        value: "30"
+      - key: INTELLIGENCE_MAX_RECORDS
+        value: "500"
+  # Optional: standalone Python intelligence microservice
+  # Deploy this service separately if you want to run the FastAPI intelligence
+  # module independently from the Node.js backend.
+  - type: web
+    name: govcon-intelligence
+    runtime: python
+    buildCommand: pip install -r intelligence/requirements.txt
+    startCommand: uvicorn intelligence.routes:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SAM_API_KEY
+        sync: false   # Must be set manually in the Render dashboard
+      - key: PORT
+        value: "10001"
+      - key: INTEL_PORT
+        value: "10001"
+      - key: INTELLIGENCE_DB_PATH
+        value: "/tmp/intelligence.db"

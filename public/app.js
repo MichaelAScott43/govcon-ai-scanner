@@ -301,27 +301,54 @@ pasteForm.addEventListener("submit", (e) => {
   renderAnalysis(mockAnalysis);
 });
 
+// Pre-populate SAM search dates: default to last 30 days
+(function setDefaultSamDates() {
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const toHtmlDateValue = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  const postedFromEl = document.getElementById("postedFrom");
+  const postedToEl = document.getElementById("postedTo");
+
+  if (postedFromEl && !postedFromEl.value) postedFromEl.value = toHtmlDateValue(thirtyDaysAgo);
+  if (postedToEl && !postedToEl.value) postedToEl.value = toHtmlDateValue(today);
+})();
+
 samSearchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const keyword = document.getElementById("keyword").value.trim();
   const setAsideEl = document.getElementById("setAside");
 
+  const params = new URLSearchParams();
+  if (keyword) params.set("keyword", keyword);
   const params = new URLSearchParams({
     postedFrom: toIsoDate(document.getElementById("postedFrom").value),
     postedTo: toIsoDate(document.getElementById("postedTo").value),
     keyword: document.getElementById("keyword").value.trim(),
     naics: document.getElementById("naics").value.trim(),
     psc: document.getElementById("psc").value.trim(),
-    setAside: setAsideEl ? setAsideEl.value.trim() : ""
+    setAside: setAsideEl ? setAsideEl.value.trim() : "",
+    noticeType: (document.getElementById("noticeType")?.value || "").trim()
   });
 
-  if (!params.get("postedFrom") || !params.get("postedTo")) {
-    alert("Posted From and Posted To are required for SAM search.");
-    return;
-  }
+  const naics = document.getElementById("naics").value.trim();
+  const psc = document.getElementById("psc").value.trim();
+  const postedFrom = toIsoDate(document.getElementById("postedFrom").value);
+  const postedTo = toIsoDate(document.getElementById("postedTo").value);
+  const setAside = setAsideEl ? setAsideEl.value.trim() : "";
+
+  if (naics) params.set("naics", naics);
+  if (psc) params.set("psc", psc);
+  if (postedFrom) params.set("postedFrom", postedFrom);
+  if (postedTo) params.set("postedTo", postedTo);
+  if (setAside) params.set("setAside", setAside);
 
   samStatusEl.textContent = "Searching SAM.gov...";
-  samResultsEl.innerHTML = `<p class="empty-state">Searching...</p>`;
+  samResultsEl.innerHTML = `<p class="empty-state">Loading results, please wait…</p>`;
 
   try {
     const response = await fetch(`/api/sam-search?${params.toString()}`);
@@ -432,7 +459,7 @@ samSearchForm.addEventListener("submit", async (e) => {
   } catch (error) {
     console.error(error);
     samStatusEl.textContent = "Search failed.";
-    samResultsEl.innerHTML = `<p class="empty-state">${error.message || "Unable to search SAM.gov."}</p>`;
+    samResultsEl.innerHTML = `<p class="empty-state">${error.message || "Unable to search SAM.gov. Please try again."}</p>`;
   }
 });
 
@@ -523,3 +550,57 @@ downloadReportBtn.addEventListener("click", () => {
 printReportBtn.addEventListener("click", () => {
   window.print();
 });
+
+// ---------------------------------------------------------------------------
+// 30-Day Free Trial & Upgrade CTA
+// ---------------------------------------------------------------------------
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/aFa7sK8peh2l4Up8aVf7i02";
+const TRIAL_DAYS = 30;
+const TRIAL_WARNING_DAYS = 5; // show upgrade button when this many days remain
+
+function getTrialStart() {
+  let start = localStorage.getItem("govcon_trial_start");
+  if (!start) {
+    // Store only the calendar date (YYYY-MM-DD) so day counting is date-based,
+    // not affected by the time of day the user first visited.
+    start = new Date().toISOString().slice(0, 10);
+    localStorage.setItem("govcon_trial_start", start);
+  }
+  return start; // "YYYY-MM-DD" string
+}
+
+function getTrialDaysRemaining() {
+  const startStr = getTrialStart();
+  const startDate = new Date(startStr + "T00:00:00");
+  const today = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00");
+  const elapsed = Math.round((today - startDate) / (1000 * 60 * 60 * 24));
+  return Math.max(0, TRIAL_DAYS - elapsed);
+}
+
+function initTrialBanner() {
+  const daysLeft = getTrialDaysRemaining();
+  const trialBanner = document.getElementById("trialBanner");
+  const trialMessage = document.getElementById("trialMessage");
+  const upgradeNowBtn = document.getElementById("upgradeNowBtn");
+  const trialExpiredOverlay = document.getElementById("trialExpiredOverlay");
+
+  if (!trialBanner) return;
+
+  if (daysLeft === 0) {
+    // Trial expired — show the blocking overlay
+    trialMessage.textContent = "⚠️ Your free trial has expired.";
+    upgradeNowBtn.style.display = "inline-block";
+    if (trialExpiredOverlay) trialExpiredOverlay.style.display = "flex";
+  } else if (daysLeft <= TRIAL_WARNING_DAYS) {
+    // Approaching expiry — show countdown + upgrade button
+    trialMessage.textContent = `⏳ ${daysLeft} day${daysLeft === 1 ? "" : "s"} left in your free trial.`;
+    upgradeNowBtn.style.display = "inline-block";
+  } else {
+    // Plenty of time left — friendly message only
+    trialMessage.textContent = `🎉 Free trial active — ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining.`;
+    upgradeNowBtn.style.display = "none";
+  }
+}
+
+// Run on page load
+initTrialBanner();

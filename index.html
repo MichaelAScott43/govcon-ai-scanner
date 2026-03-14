@@ -9,7 +9,7 @@
     body {
       font-family: "Arial Narrow", Arial, sans-serif;
       margin: 0;
-      background-color: #f3f6fa;
+      background-color: #f7fafe;
     }
 
     body::before {
@@ -32,7 +32,7 @@
       background: white;
       padding: 35px;
       border-radius: 12px;
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 6px 25px rgba(20, 36, 58, 0.08);
     }
 
     .header {
@@ -50,31 +50,39 @@
     h1 {
       margin: 0;
       font-size: 28px;
-      color: #16324f;
+      color: #14243a;
     }
 
     .subtitle {
-      color: #5b6775;
+      color: #5d6b7c;
       margin-bottom: 25px;
       line-height: 1.5;
+    }
+
+    .tagline {
+      margin-top: 6px;
+      margin-bottom: 0;
+      color: #5d6b7c;
+      font-size: 15px;
+      line-height: 1.4;
     }
 
     .upload-card,
     .result-card,
     .input-card {
       background: #ffffff;
-      border: 1px solid #dbe3ee;
+      border: 1px solid rgba(20, 36, 58, 0.12);
       border-radius: 10px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 3px 12px rgba(20, 36, 58, 0.04);
     }
 
     .upload-card h3,
     .input-card h3,
     .result-card h3 {
       margin-top: 0;
-      color: #1d3557;
+      color: #14243a;
     }
 
     .drop-zone {
@@ -87,8 +95,8 @@
     }
 
     .drop-zone.dragover {
-      background: #eaf2ff;
-      border-color: #2563eb;
+      background: #edf3fb;
+      border-color: #14243a;
     }
 
     .row {
@@ -109,7 +117,7 @@
     textarea {
       padding: 10px;
       border-radius: 6px;
-      border: 1px solid #d0d7e2;
+      border: 1px solid #c8d5e6;
       font-size: 14px;
       box-sizing: border-box;
     }
@@ -122,7 +130,7 @@
 
     button {
       padding: 10px 18px;
-      background: #1d4ed8;
+      background: #14243a;
       color: white;
       border: none;
       border-radius: 6px;
@@ -131,7 +139,7 @@
     }
 
     button:hover {
-      background: #1e40af;
+      background: #1e3553;
     }
 
     button:disabled {
@@ -140,33 +148,27 @@
     }
 
     .muted {
-      color: #667085;
+      color: #5d6b7c;
       font-size: 13px;
     }
 
     pre {
       white-space: pre-wrap;
-      background: #f5f7fb;
+      background: #f5f9ff;
       padding: 16px;
       border-radius: 8px;
       margin-top: 15px;
-      border: 1px solid #e3e8ef;
+      border: 1px solid #dae6f3;
       min-height: 120px;
-      .disclaimer {
-  margin-top: 40px;
-  padding: 15px;
-  font-size: 12px;
-  color: #6b7280;
-  text-align: center;
-  border-top: 1px solid #e5e7eb;
-  .tagline {
-  margin-top: 6px;
-  margin-bottom: 25px;
-  color: #4b5563;
-  font-size: 15px;
-  line-height: 1.4;
-}
-}
+    }
+
+    .disclaimer {
+      margin-top: 40px;
+      padding: 15px;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
     }
   </style>
 </head>
@@ -174,10 +176,12 @@
   <div class="container">
     <div class="header">
       <img src="assets/govcon-logo.png" alt="GovCon AI Logo" />
-      <h1>GovCon AI Proposal Scanner</h1>
-      <p class="tagline">
-AI-assisted analysis of RFPs, contracts, and procurement documents to identify proposal requirements, compliance risks, and bid strategy insights.
-</p>
+      <div>
+        <h1>GovCon AI Proposal Scanner</h1>
+        <p class="tagline">
+          AI-assisted analysis of RFPs, contracts, and procurement documents to identify proposal requirements, compliance risks, and bid strategy insights.
+        </p>
+      </div>
     </div>
 
     <p class="subtitle">
@@ -370,7 +374,6 @@ AI-assisted analysis of RFPs, contracts, and procurement documents to identify p
       URL.revokeObjectURL(url);
     });
   </script>
- </script>
 
 <footer class="disclaimer">
 Designed for Non-Classified Use Only. Do not upload classified information,
