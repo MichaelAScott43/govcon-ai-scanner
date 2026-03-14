@@ -363,10 +363,11 @@ samSearchForm.addEventListener("submit", async (e) => {
 
     if (!response.ok || !data.success) {
       const isMissingKey = data.errorCode === "MISSING_API_KEY";
+      const statusInfo = `(HTTP ${response.status})`;
       throw new Error(
         isMissingKey
           ? "SAM API key is not configured. Add your SAM_API_KEY to the .env file on the server and restart."
-          : data.error || "SAM search failed."
+          : `${data.error || "SAM search failed."} ${statusInfo}`
       );
     }
 
