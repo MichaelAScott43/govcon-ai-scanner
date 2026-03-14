@@ -1,42 +1,9 @@
 import { authenticateToken } from "./auth.js";
-
-/**
- * Admin-only middleware.
- *
- * 1. Validates the JWT (reuses authenticateToken).
- * 2. Checks that the decoded token belongs to an admin user.
- * 3. Logs every admin request for audit purposes.
- */
-export function requireAdmin(req, res, next) {
-  // First validate the JWT and attach req.user
-  authenticateToken(req, res, () => {
-    if (req.user?.role !== "admin") {
-      return res.status(403).json({ success: false, error: "Admin access required." });
-    }
-
-    // Audit log — write to console (can be forwarded to Datadog / log aggregator)
-    console.log(
-      JSON.stringify({
-        type: "ADMIN_ACTION",
-        adminId: req.user.id,
-        method: req.method,
-        path: req.originalUrl,
-        ip: req.ip,
-        timestamp: new Date().toISOString()
-      })
-    );
-
-    next();
-  });
-}
-
-export default requireAdmin;
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 /**
- * Admin middleware — must be used AFTER authenticateToken.
- * Verifies the authenticated user has the "admin" role.
+ * Admin middleware - verifies the authenticated user has admin role.
+ * Must be used AFTER authenticateToken.
  */
 export async function requireAdmin(req, res, next) {
   try {
@@ -64,14 +31,14 @@ export async function requireAdmin(req, res, next) {
 }
 
 /**
- * Audit-logging middleware — logs every admin action to stdout (Datadog picks it up).
+ * Audit-logging middleware - logs every admin action to stdout (Datadog picks it up).
  * Call AFTER requireAdmin so req.adminUser is available.
  */
 export function auditLog(req, res, next) {
   const start = Date.now();
   const { method, originalUrl, body, params, query } = req;
 
-  // Sanitize body before logging — never log passwords or tokens
+  // Sanitize body before logging - never log passwords or tokens
   const safeBody = Object.fromEntries(
     Object.entries(body || {}).filter(([k]) => !["password", "token", "refreshToken", "secret"].includes(k))
   );
