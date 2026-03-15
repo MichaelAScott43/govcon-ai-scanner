@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – GovCon AI Proposal Scanner</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      background: #f7fafe;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border: 1px solid rgba(20, 36, 58, 0.12);
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(20, 36, 58, 0.08);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-logo {
+      display: block;
+      width: 80px;
+      height: auto;
+      margin: 0 auto 16px;
+    }
+
+    .login-card h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      color: #14243a;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      color: #5d6b7c;
+      margin: 0 0 28px;
+      font-size: 0.95rem;
+    }
+
+    .login-tabs {
+      display: flex;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #c8d5e6;
+      margin-bottom: 24px;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      background: #f3f7fc;
+      color: #14243a;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    .login-tab.active {
+      background: #14243a;
+      color: #ffffff;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .login-form label {
+      font-weight: 700;
+      color: #14243a;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #c8d5e6;
+      background: #fbfdff;
+      color: #14243a;
+      font-size: 0.98rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .login-form input:focus {
+      outline: none;
+      border-color: #14243a;
+      box-shadow: 0 0 0 2px rgba(20, 36, 58, 0.08);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: #14243a;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .login-btn:hover {
+      filter: brightness(1.15);
+    }
+
+    .login-error {
+      display: none;
+      background: #fdf2f2;
+      border: 1px solid #f5c6c6;
+      color: #a63c3c;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.93rem;
+      font-weight: 700;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #5d6b7c;
+      font-size: 0.88rem;
+    }
+
+    .register-fields {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .register-fields.visible {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="/assets/logo.png" alt="GovCon AI Scanner logo" class="login-logo" onerror="this.style.display='none'" />
+      <h1>GovCon AI Scanner</h1>
+      <p class="login-subtitle">Sign in to access your proposal dashboard</p>
+
+      <div class="login-tabs">
+        <button class="login-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="login-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <div id="error-msg" class="login-error" role="alert"></div>
+
+      <form class="login-form" id="login-form" onsubmit="handleSubmit(event)">
+        <div class="register-fields" id="register-extra">
+          <div>
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Jane Smith" autocomplete="name" />
+          </div>
+          <div>
+            <label for="company">Company (optional)</label>
+            <input type="text" id="company" name="company" placeholder="Acme Corp" autocomplete="organization" />
+          </div>
+        </div>
+
+        <div>
+          <label for="email">Email Address</label>
+          <input type="text" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+
+        <button type="submit" class="login-btn" id="submit-btn">Sign In</button>
+      </form>
+
+      <p class="login-footer">GovCon AI Proposal Scanner &copy; 2025</p>
+    </div>
+  </div>
+
+  <script>
+    var currentMode = "login";
+
+    function switchTab(mode) {
+      currentMode = mode;
+      document.getElementById("tab-login").classList.toggle("active", mode === "login");
+      document.getElementById("tab-register").classList.toggle("active", mode === "register");
+      var extra = document.getElementById("register-extra");
+      if (mode === "register") {
+        extra.classList.add("visible");
+      } else {
+        extra.classList.remove("visible");
+      }
+      document.getElementById("submit-btn").textContent = mode === "login" ? "Sign In" : "Create Account";
+      document.getElementById("password").setAttribute("autocomplete", mode === "login" ? "current-password" : "new-password");
+      clearError();
+    }
+
+    function showError(msg) {
+      var el = document.getElementById("error-msg");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+
+    function clearError() {
+      var el = document.getElementById("error-msg");
+      el.textContent = "";
+      el.style.display = "none";
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      clearError();
+      var btn = document.getElementById("submit-btn");
+      var email = document.getElementById("email").value.trim();
+      var password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        showError("Email and password are required.");
+        return;
+      }
+
+      var payload = { email: email, password: password };
+      if (currentMode === "register") {
+        var name = document.getElementById("name").value.trim();
+        var company = document.getElementById("company").value.trim();
+        if (!name) {
+          showError("Full name is required.");
+          return;
+        }
+        payload.name = name;
+        if (company) payload.company = company;
+      }
+
+      btn.disabled = true;
+      btn.textContent = currentMode === "login" ? "Signing in…" : "Creating account…";
+
+      try {
+        var url = currentMode === "login" ? "/api/auth/login" : "/api/auth/register";
+        var res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        var data = await res.json();
+
+        if (!res.ok || !data.success) {
+          showError(data.error || "Authentication failed. Please try again.");
+          return;
+        }
+
+        if (data.accessToken) {
+          localStorage.setItem("accessToken", data.accessToken);
+        }
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken);
+        }
+
+        window.location.replace("/app.html");
+      } catch (err) {
+        showError("Unable to connect. Please try again.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = currentMode === "login" ? "Sign In" : "Create Account";
+      }
+    }
+  </script>
+</body>
+</html>
