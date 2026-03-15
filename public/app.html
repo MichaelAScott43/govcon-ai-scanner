@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=/login" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GovCon AI Proposal Scanner</title>
-  <script>window.location.replace('/login');</script>
+  <script>
+    (function () {
+      var token = localStorage.getItem("accessToken");
+      if (!token) {
+        window.location.replace("/login");
+      }
+    })();
+  </script>
 </head>
 <body>
-  <p>Redirecting to <a href="/login">login</a>...</p>
+  <p>Loading application…</p>
 </body>
 </html>
