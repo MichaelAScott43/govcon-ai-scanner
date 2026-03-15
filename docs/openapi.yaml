@@ -1,122 +1,10 @@
-openapi: 3.0.3
-
-info:
-  title: GovCon AI Scanner API
-  description: |
-    # GovCon AI Scanner — REST API Reference
-
-    The GovCon AI Scanner helps government contractors discover, analyze, and
-    track opportunities from SAM.gov.  Use this API to integrate opportunity
-    data into your ERP or build custom workflows.
-
-    ## Authentication
-
-    All protected endpoints require a **Bearer** access token obtained via
-    `POST /api/auth/login`.  Tokens expire after **15 minutes**; use
-    `POST /api/auth/refresh` with your refresh token to obtain a new pair.
 openapi: "3.0.3"
+
 info:
   title: GovCon AI Scanner API
+  version: "1.0.0"
   description: |
-    Professional REST API for the **GovCon AI Scanner** platform — an enterprise-grade tool
-    for searching SAM.gov opportunities, analyzing solicitation documents for bid/no-bid
-    decisions, and managing government contracting pipelines.
-
-    ## Authentication
-
-    All protected endpoints require a JWT `Bearer` token in the `Authorization` header:
-
-    ```
-    Authorization: Bearer <access_token>
-    ```
-
-    ## Rate Limiting
-
-    | Endpoint group        | Limit                 |
-    |-----------------------|-----------------------|
-    | `/api/auth/*`         | 30 requests / 15 min  |
-    | `/api/opportunities/*`| 200 requests / 15 min |
-    | `/api/email*`         | 200 requests / 15 min |
-    | `/api/admin/*`        | 60 requests / 15 min  |
-
-    When exceeded the API returns **429 Too Many Requests** with:
-    ```json
-    { "success": false, "error": "Too many requests. Please try again later." }
-    ```
-
-    ## Error Codes
-
-    | HTTP Code | Meaning |
-    |-----------|---------|
-    | 400       | Bad Request — missing or invalid fields |
-    | 401       | Unauthorized — missing, expired, or invalid token |
-    | 403       | Forbidden — valid token but insufficient permissions |
-    | 404       | Not Found |
-    | 409       | Conflict — e.g. email already registered |
-    | 429       | Too Many Requests |
-    | 500       | Internal Server Error |
-
-    ## Webhooks (Stripe)
-
-    Stripe sends signed webhook events to your server.  Events include:
-    - `customer.subscription.created`
-    - `customer.subscription.deleted`
-    - `invoice.payment_succeeded`
-    - `invoice.payment_failed`
-
-    Validate the `Stripe-Signature` header using your `STRIPE_WEBHOOK_SECRET`
-    before processing any event.
-
-  version: "2.0.0"
-  contact:
-    name: GovCon AI Scanner Support
-    email: support@govconscanner.com
-  license:
-    name: Proprietary
-    Tokens are obtained via `/api/auth/login` or `/api/auth/register` and expire after **15 minutes**.
-    Use `/api/auth/refresh` with your `refreshToken` (valid for 7 days) to get a new access token
-    without requiring the user to log in again.
-
-    ## Rate Limits
-
-    | Endpoint Group | Limit |
-    |----------------|-------|
-    | Auth endpoints | 30 req / 15 min per IP |
-    | API endpoints  | 200 req / 15 min per IP |
-    | Admin endpoints| 200 req / 15 min per IP |
-
-    When a rate limit is exceeded, the API returns **HTTP 429** with a `Retry-After` header.
-
-    ## Error Format
-
-    All errors follow a consistent JSON structure:
-
-    ```json
-    {
-      "success": false,
-      "error": "Human-readable error message",
-      "errorCode": "OPTIONAL_MACHINE_CODE"
-    }
-    ```
-
-    ## Pagination
-
-    List endpoints accept `page` (1-based) and `limit` query parameters and return:
-
-    ```json
-    {
-      "pagination": {
-        "page": 1,
-        "limit": 20,
-        "total": 150,
-        "pages": 8
-      }
-    }
-    ```
-  version: "2.0.0"
-  contact:
-    name: GovCon AI Scanner Support
-    url: https://govcon-ai-scanner.onrender.com
+    Minimal OpenAPI spec for GovCon AI Scanner.
 
 servers:
   - url: https://govcon-ai-scanner.onrender.com
@@ -125,41 +13,16 @@ servers:
     description: Local development
 
 tags:
-  - name: Auth
-    description: Registration, login, token refresh
-  - name: Opportunities
-    description: SAM.gov search, document analysis, saved opportunities
-  - name: Email
-    description: Email preferences and daily digest
-  - name: Admin – Users
-    description: Admin user management (admin role required)
-  - name: Admin – Analytics
-    description: Admin analytics and insights (admin role required)
-  - name: Admin – Subscriptions
-    description: Admin subscription management (admin role required)
-  - name: Admin – System
-    description: Admin system health and operations (admin role required)
   - name: System
     description: Health check
-
-# ---------------------------------------------------------------------------
-# Security Schemes
-# ---------------------------------------------------------------------------
-    description: User registration, login, token refresh, and profile management
+  - name: Auth
+    description: Authentication endpoints
   - name: Opportunities
-    description: Search SAM.gov, save opportunities, and analyze documents
+    description: Opportunity search and analysis
   - name: Email
-    description: Email digest preferences and notification management
-  - name: Admin – Users
-    description: "Admin: user management (requires admin role)"
-  - name: Admin – Analytics
-    description: "Admin: platform analytics and usage reporting"
-  - name: Admin – Subscriptions
-    description: "Admin: subscription and trial management"
-  - name: Admin – Health
-    description: "Admin: system health and integration status"
-  - name: System
-    description: Public health check
+    description: Email preferences
+  - name: Admin
+    description: Admin endpoints
 
 components:
   securitySchemes:
@@ -168,10 +31,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
-  # -------------------------------------------------------------------------
-  # Reusable Schemas
-  # -------------------------------------------------------------------------
-  schemas:
   schemas:
     Error:
       type: object
@@ -181,27 +40,7 @@ components:
           example: false
         error:
           type: string
-          example: "Invalid credentials."
-        errorCode:
-          type: string
-          nullable: true
-          example: "MISSING_API_KEY"
-
-    Pagination:
-      type: object
-      properties:
-        page:
-          type: integer
-          example: 1
-        limit:
-          type: integer
-          example: 20
-        total:
-          type: integer
-          example: 150
-        pages:
-          type: integer
-          example: 8
+          example: Descriptive error message
 
     User:
       type: object
@@ -219,17 +58,6 @@ components:
         company:
           type: string
           example: "Acme Federal LLC"
-          example: "64f1a2b3c4d5e6f7a8b9c0d1"
-        email:
-          type: string
-          format: email
-          example: "jane.doe@acme.gov"
-        name:
-          type: string
-          example: "Jane Doe"
-        company:
-          type: string
-          example: "Acme Defense Solutions"
         naicsCodes:
           type: array
           items:
@@ -237,30 +65,15 @@ components:
           example: ["541511", "541330"]
         role:
           type: string
-          enum: [user, admin]
-          example: user
-        createdAt:
-          type: string
-          format: date-time
+          example: "user"
 
     TokenPair:
       type: object
       properties:
         accessToken:
           type: string
-          description: Short-lived JWT (15 min)
         refreshToken:
           type: string
-          description: Long-lived refresh token (7 days)
-          example: ["541330", "541512", "336411"]
-        role:
-          type: string
-          enum: [user, admin]
-          example: "user"
-        createdAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T09:30:00.000Z"
 
     Opportunity:
       type: object
@@ -271,126 +84,27 @@ components:
         title:
           type: string
           example: "IT Modernization Services"
-        solicitationNumber:
-          type: string
         agency:
           type: string
           example: "Department of Defense"
-        office:
-          type: string
         naicsCode:
           type: string
           example: "541511"
-        pscCode:
-          type: string
-        setAside:
-          type: string
-          example: "Small Business"
-        noticeType:
-          type: string
         postedDate:
           type: string
           format: date
-        responseDeadLine:
-          type: string
-          format: date-time
-        uiLink:
-          type: string
-          format: uri
-        bidScore:
-          type: number
-          minimum: 0
-          maximum: 100
-        recommendation:
-          type: string
-          enum: [BID, NO-BID, REVIEW]
-
-    Pagination:
-      type: object
-      properties:
-        page:
-          type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-
-    Error:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        error:
-          type: string
-          example: "Descriptive error message"
-
-  # -------------------------------------------------------------------------
-  # Reusable Parameters
-  # -------------------------------------------------------------------------
-  parameters:
-    PageParam:
-      name: page
-      in: query
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-    LimitParam:
-      name: limit
-      in: query
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-    UserIdParam:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
-
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
-paths:
-
-  # ==========================================================================
-  # AUTH
-  # ==========================================================================
-
-          example: "fa7bc123456789"
-        title:
-          type: string
-          example: "IT Support Services IDIQ"
-        solicitationNumber:
-          type: string
-          example: "W900KK-24-R-0001"
-        agency:
-          type: string
-          example: "DEPT OF DEFENSE"
-        naicsCode:
-          type: string
-          example: "541512"
-        pscCode:
-          type: string
-          example: "D302"
-        postedDate:
-          type: string
           example: "2024-01-10"
         responseDeadLine:
           type: string
-          example: "2024-02-10"
+          format: date-time
+          example: "2024-02-10T17:00:00Z"
         setAside:
           type: string
           example: "Small Business"
         uiLink:
           type: string
           format: uri
-          example: "https://sam.gov/opp/fa7bc123456789/view"
+          example: "https://sam.gov"
 
     AnalysisResult:
       type: object
@@ -398,9 +112,6 @@ paths:
         success:
           type: boolean
           example: true
-        fileName:
-          type: string
-          example: "RFP_W900KK-24-R-0001.pdf"
         bidScore:
           type: integer
           minimum: 0
@@ -408,185 +119,26 @@ paths:
           example: 72
         recommendation:
           type: string
-          enum: [BID, NO-BID, REVIEW]
           example: "BID"
         clausesDetected:
           type: array
           items:
             type: string
-          example: ["FAR 52.204-7", "DFARS 252.204-7012", "FAR 52.222-26"]
-        extractedTextPreview:
-          type: string
-          example: "SECTION B – SUPPLIES OR SERVICES..."
-        disclaimer:
-          type: string
-          example: "Designed for Non-Classified Use Only"
+          example: ["FAR 52.204-7", "DFARS 252.204-7012"]
 
 paths:
-  # ---------------------------------------------------------------------------
-  # System
-  # ---------------------------------------------------------------------------
   /health:
     get:
       tags: [System]
       summary: Health check
-      description: Returns the application health status. No authentication required.
-      operationId: healthCheck
       responses:
         "200":
           description: Service is healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok:
-                    type: boolean
-                    example: true
-                  app:
-                    type: string
-                    example: "GovCon AI Scanner"
-                  env:
-                    type: string
-                    example: "production"
-                  samConfigured:
-                    type: boolean
-                    example: true
-                  mongoConfigured:
-                    type: boolean
-                    example: true
-
-  # ---------------------------------------------------------------------------
-  # Auth
-  # ---------------------------------------------------------------------------
-  /api/auth/register:
-    post:
-      tags: [Auth]
-      summary: Register a new user
-      operationId: authRegister
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [email, password]
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: "jane@example.com"
-                password:
-                  type: string
-                  example: "jane.doe@acme.gov"
-                password:
-                  type: string
-                  format: password
-                  minLength: 8
-                  example: "Str0ng!Pass"
-                name:
-                  type: string
-                  example: "Jane Smith"
-                company:
-                  type: string
-                  example: "Acme Federal LLC"
-                  example: "Jane Doe"
-                company:
-                  type: string
-                  example: "Acme Defense Solutions"
-                naicsCodes:
-                  type: array
-                  items:
-                    type: string
-                  example: ["541511"]
-      responses:
-        "201":
-          description: Account created
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/TokenPair"
-                  - type: object
-                    properties:
-                      success:
-                        type: boolean
-                        example: true
-                      user:
-                        $ref: "#/components/schemas/User"
-        "409":
-          description: Email already registered
-                  example: ["541330", "541512"]
-            examples:
-              basic:
-                summary: Minimal registration
-                value:
-                  email: "jane@example.com"
-                  password: "MySecret123"
-              full:
-                summary: Full registration
-                value:
-                  email: "jane@example.com"
-                  password: "MySecret123"
-                  name: "Jane Doe"
-                  company: "Acme Defense"
-                  naicsCodes: ["541330", "541512"]
-      responses:
-        "201":
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  accessToken:
-                    type: string
-                  refreshToken:
-                    type: string
-                  user:
-                    $ref: "#/components/schemas/User"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "409":
-          description: Email already in use
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-      x-code-samples:
-        - lang: cURL
-          source: |
-            curl -X POST https://govcon-ai-scanner.onrender.com/api/auth/register \
-              -H "Content-Type: application/json" \
-              -d '{"email":"jane@example.com","password":"Str0ng!Pass","name":"Jane Smith"}'
-        - lang: JavaScript
-          source: |
-            const res = await fetch('/api/auth/register', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: 'jane@example.com', password: 'Str0ng!Pass' })
-            });
-            const { accessToken, user } = await res.json();
-        - lang: Python
-          source: |
-            import requests
-            r = requests.post('http://localhost:3000/api/auth/register',
-                              json={'email': 'jane@example.com', 'password': 'Str0ng!Pass'})
-            data = r.json()
 
   /api/auth/login:
     post:
       tags: [Auth]
-      summary: Login and obtain tokens
-      summary: Log in and receive JWT tokens
-      operationId: authLogin
+      summary: Log in
       requestBody:
         required: true
         content:
@@ -603,1549 +155,109 @@ paths:
       responses:
         "200":
           description: Login successful
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/TokenPair"
-                  - type: object
-                    properties:
-                      success:
-                        type: boolean
-                        example: true
-                      user:
-                        $ref: "#/components/schemas/User"
-                  example: "jane.doe@acme.gov"
-                password:
-                  type: string
-                  format: password
-                  example: "Str0ng!Pass"
+
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register user
       responses:
-        "200":
-          description: Authenticated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  accessToken:
-                    type: string
-                    description: Short-lived JWT (15 minutes)
-                  refreshToken:
-                    type: string
-                    description: Long-lived refresh token (7 days)
-                  user:
-                    $ref: "#/components/schemas/User"
-        "401":
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-      x-code-samples:
-        - lang: cURL
-          source: |
-            curl -X POST https://govcon-ai-scanner.onrender.com/api/auth/login \
-              -H "Content-Type: application/json" \
-              -d '{"email":"jane@example.com","password":"Str0ng!Pass"}'
+        "201":
+          description: User created
 
   /api/auth/refresh:
     post:
       tags: [Auth]
-      summary: Refresh access token
-      operationId: authRefresh
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [refreshToken]
-              properties:
-                refreshToken:
-                  type: string
+      summary: Refresh token
       responses:
         "200":
-          description: New token pair issued
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/TokenPair"
-                  - type: object
-                    properties:
-                      success:
-                        type: boolean
-                        example: true
-        "403":
-          description: Invalid or expired refresh token
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  accessToken:
-                    type: string
-                  refreshToken:
-                    type: string
-        "403":
-          description: Invalid or expired refresh token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          description: Token refreshed
 
-  /api/auth/logout:
-    post:
-      tags: [Auth]
-      summary: Logout (invalidates refresh token)
-      summary: Log out (invalidate refresh token)
-      operationId: authLogout
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Logged out
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Logged out successfully."
-
-  /api/auth/profile:
-    get:
-      tags: [Auth]
-      summary: Get current user profile
-      operationId: getProfile
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: User profile
-          description: Profile retrieved
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  user:
-                    $ref: "#/components/schemas/User"
-    patch:
-      tags: [Auth]
-      summary: Update current user profile
-      operationId: updateProfile
-      security:
-        - bearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                company:
-                  type: string
-                  example: "Jane Smith"
-                company:
-                  type: string
-                  example: "Smith Defense LLC"
-                naicsCodes:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        "200":
-          description: Updated profile
-
-  # ==========================================================================
-  # OPPORTUNITIES
-  # ==========================================================================
-
-                  example: ["541330"]
-      responses:
-        "200":
-          description: Profile updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  user:
-                    $ref: "#/components/schemas/User"
-
-  # ---------------------------------------------------------------------------
-  # Opportunities
-  # ---------------------------------------------------------------------------
   /api/opportunities/search:
     post:
       tags: [Opportunities]
       summary: Search SAM.gov opportunities
-      operationId: searchOpportunities
       security:
         - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                postedFrom:
-                  type: string
-                  format: date
-                  example: "2024-01-01"
-                postedTo:
-                  type: string
-                  format: date
-                  example: "2024-12-31"
-              required: [postedFrom, postedTo]
-              properties:
-                postedFrom:
-                  type: string
-                  description: "Date in MM/DD/YYYY format"
-                  example: "01/01/2024"
-                postedTo:
-                  type: string
-                  description: "Date in MM/DD/YYYY format"
-                  example: "01/31/2024"
-                keyword:
-                  type: string
-                  example: "cybersecurity"
-                naics:
-                  type: string
-                  example: "541511"
-                psc:
-                  type: string
-                  example: "541512"
-                psc:
-                  type: string
-                  example: "D302"
-                setAside:
-                  type: string
-                  example: "SBA"
-                noticeType:
-                  type: string
-                  example: "Solicitation"
-                  example: "o"
-                page:
-                  type: integer
-                  default: 1
-                limit:
-                  type: integer
-                  default: 25
-                  default: 100
-                  maximum: 1000
       responses:
         "200":
-          description: Search results
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Opportunity"
-                  total:
-                    type: integer
-      x-code-samples:
-        - lang: cURL
-          source: |
-            curl -X POST https://govcon-ai-scanner.onrender.com/api/opportunities/search \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Content-Type: application/json" \
-              -d '{"keyword":"cybersecurity","naics":"541511","postedFrom":"2024-01-01"}'
-        - lang: JavaScript
-          source: |
-            const res = await fetch('/api/opportunities/search', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ keyword: 'cybersecurity', naics: '541511' })
-            });
-            const { data } = await res.json();
-        - lang: Python
-          source: |
-            import requests
-            r = requests.post('http://localhost:3000/api/opportunities/search',
-                              headers={'Authorization': f'Bearer {token}'},
-                              json={'keyword': 'cybersecurity', 'naics': '541511'})
-            opportunities = r.json()['data']
-                    example: true
-                  totalRecords:
-                    type: integer
-                    example: 1247
-                  page:
-                    type: integer
-                    example: 1
-                  opportunities:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Opportunity"
+          description: Search results returned
 
   /api/opportunities:
     get:
       tags: [Opportunities]
-      summary: Get saved opportunities for current user
-      summary: Get user's saved opportunities
-      operationId: getSavedOpportunities
+      summary: Get saved opportunities
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Saved opportunities list
-          description: Saved opportunities
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    example: true
-                  opportunities:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Opportunity"
+          description: Saved opportunities returned
 
   /api/opportunities/save:
     post:
       tags: [Opportunities]
       summary: Save an opportunity
-      summary: Save an opportunity to the user's list
-      operationId: saveOpportunity
       security:
         - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Opportunity"
       responses:
         "200":
           description: Opportunity saved
-              type: object
-              required: [opportunity]
-              properties:
-                opportunity:
-                  $ref: "#/components/schemas/Opportunity"
-      responses:
-        "200":
-          description: Opportunity saved
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  opportunity:
-                    $ref: "#/components/schemas/Opportunity"
 
   /api/opportunities/analyze:
     post:
       tags: [Opportunities]
-      summary: Analyze a document for bid scoring
-      description: |
-        Upload a PDF, DOCX, or TXT file.  The service parses the text,
-        detects FAR/DFARS clauses, and returns a bid score (0-100) with a
-        BID / NO-BID / REVIEW recommendation.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-      summary: Analyze a solicitation document (bid/no-bid scoring)
-      operationId: analyzeDocument
-      security:
-        - bearerAuth: []
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                document:
-                  type: string
-                  format: binary
-                  description: PDF, DOCX, or TXT solicitation document
-      responses:
-        "200":
-          description: Analysis results
-                file:
-                  type: string
-                  format: binary
-                  description: PDF, DOCX, or TXT solicitation document (max 10 MB)
-          application/json:
-            schema:
-              type: object
-              properties:
-                text:
-                  type: string
-                  description: Raw solicitation text to analyze
-      responses:
-        "200":
-          description: Analysis complete
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AnalysisResult"
-
-  /api/opportunities/debug:
-    get:
-      tags: [Opportunities]
-      summary: Test SAM.gov API connectivity
-      operationId: debugSamApi
+      summary: Analyze a solicitation document
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: SAM API reachable
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  bidScore:
-                    type: number
-                  recommendation:
-                    type: string
-                    enum: [BID, NO-BID, REVIEW]
-                  detectedClauses:
-                    type: array
-                    items:
-                      type: string
-      x-code-samples:
-        - lang: cURL
-          source: |
-            curl -X POST https://govcon-ai-scanner.onrender.com/api/opportunities/analyze \
-              -H "Authorization: Bearer $TOKEN" \
-              -F "document=@/path/to/solicitation.pdf"
-        - lang: Python
-          source: |
-            import requests
-            with open('solicitation.pdf', 'rb') as f:
-                r = requests.post('http://localhost:3000/api/opportunities/analyze',
-                                  headers={'Authorization': f'Bearer {token}'},
-                                  files={'document': f})
-            result = r.json()
+          description: Analysis completed
 
-  # ==========================================================================
-  # EMAIL
-  # ==========================================================================
-
-  /api/email-preferences:
-    get:
-      tags: [Email]
-      summary: Get email preferences
-                    example: true
-                  message:
-                    type: string
-                    example: "SAM API connectivity confirmed."
-                  totalRecords:
-                    type: integer
-                    nullable: true
-
-  # ---------------------------------------------------------------------------
-  # Email Preferences
-  # ---------------------------------------------------------------------------
   /api/email-preferences/preferences:
     get:
       tags: [Email]
-      summary: Get email notification preferences
-      operationId: getEmailPreferences
+      summary: Get email preferences
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Email preferences
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  preferences:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      frequency:
-                        type: string
-                        enum: [daily, weekly, never]
-                      deliveryTime:
-                        type: integer
-                        minimum: 0
-                        maximum: 23
-                      naicsFilter:
-                        type: array
-                        items:
-                          type: string
-                      minBidScore:
-                        type: integer
+          description: Preferences returned
 
   /api/email-preferences/preferences/update:
     post:
       tags: [Email]
       summary: Update email preferences
-      summary: Update email notification preferences
-      operationId: updateEmailPreferences
       security:
         - bearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                enabled:
-                  type: boolean
-                frequency:
-                  type: string
-                  enum: [daily, weekly, never]
-                deliveryTime:
-                  type: integer
-                  minimum: 0
-                  maximum: 23
-                naicsFilter:
-                  type: array
-                  items:
-                    type: string
-                minBidScore:
-                  type: integer
-                  minimum: 0
-                  maximum: 100
       responses:
         "200":
           description: Preferences updated
 
-  /api/email/send-daily-digest:
-    post:
-      tags: [Email]
-      summary: Trigger a test daily digest email
-  # ---------------------------------------------------------------------------
-  # Admin – Dashboard
-  # ---------------------------------------------------------------------------
   /api/admin/dashboard:
     get:
-      tags: [Admin – Analytics]
-      summary: Platform KPI dashboard
-      description: Returns key metrics — total users, active users, saved opportunities, email subscribers, and more. **Requires admin role.**
-      operationId: adminDashboard
+      tags: [Admin]
+      summary: Admin dashboard
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Email sent
-
-  # ==========================================================================
-  # ADMIN – USERS
-  # ==========================================================================
+          description: Dashboard returned
 
   /api/admin/users:
     get:
-      tags: [Admin – Users]
-      summary: List all users
-      description: Paginated, filterable list of all user accounts. **Admin only.**
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/PageParam"
-        - $ref: "#/components/parameters/LimitParam"
-        - name: search
-          in: query
-          description: Search by email, name, or company
-          schema:
-            type: string
-        - name: role
-          in: query
-          schema:
-            type: string
-            enum: [user, admin]
-        - name: isActive
-          in: query
-          schema:
-            type: boolean
-        - name: sortBy
-          in: query
-          schema:
-            type: string
-            default: createdAt
-        - name: sortOrder
-          in: query
-          schema:
-            type: string
-            enum: [asc, desc]
-            default: desc
-      responses:
-        "200":
-          description: Paginated user list
-          description: Dashboard metrics
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  metrics:
-                    type: object
-                    properties:
-                      users:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            example: 342
-                          active:
-                            type: integer
-                            example: 318
-                          newThisMonth:
-                            type: integer
-                            example: 47
-                          admins:
-                            type: integer
-                            example: 2
-                      opportunities:
-                        type: object
-                        properties:
-                          cached:
-                            type: integer
-                            example: 15420
-                          saved:
-                            type: integer
-                            example: 891
-                      email:
-                        type: object
-                        properties:
-                          subscribed:
-                            type: integer
-                            example: 287
-                      generatedAt:
-                        type: string
-                        format: date-time
-        "403":
-          description: Admin access required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  # ---------------------------------------------------------------------------
-  # Admin – Users
-  # ---------------------------------------------------------------------------
-  /api/admin/users:
-    get:
-      tags: [Admin – Users]
-      summary: List all users (paginated)
-      operationId: adminListUsers
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 20
-            maximum: 100
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search by email, name, or company
-        - in: query
-          name: role
-          schema:
-            type: string
-            enum: [user, admin]
-      responses:
-        "200":
-          description: User list
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    example: true
-                  users:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/User"
-                  pagination:
-                    $ref: "#/components/schemas/Pagination"
-
-  /api/admin/users/{id}:
-    get:
-      tags: [Admin – Users]
-      summary: Get user details and usage stats
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserIdParam"
-      responses:
-        "200":
-          description: User detail
-        "404":
-          description: User not found
-
-    patch:
-      tags: [Admin – Users]
-      summary: Update user (admin override)
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserIdParam"
-      operationId: adminGetUser
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: User details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  user:
-                    $ref: "#/components/schemas/User"
-                  emailPreferences:
-                    type: object
-                  stats:
-                    type: object
-                    properties:
-                      savedOpportunities:
-                        type: integer
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    patch:
-      tags: [Admin – Users]
-      summary: Update user (admin override)
-      operationId: adminUpdateUser
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                company:
-                  type: string
-                naicsCodes:
-                  type: array
-                  items:
-                    type: string
-                role:
-                  type: string
-                  enum: [user, admin]
-                isActive:
-                  type: boolean
-      responses:
-        "200":
-          description: User updated
-
-    delete:
-      tags: [Admin – Users]
-      summary: Deactivate user (soft delete)
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserIdParam"
-      responses:
-        "200":
-          description: User deactivated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  user:
-                    $ref: "#/components/schemas/User"
-    delete:
-      tags: [Admin – Users]
-      summary: Deactivate a user account
-      operationId: adminDeactivateUser
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: User deactivated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "User deactivated."
-
-  /api/admin/users/{id}/activity:
-    get:
-      tags: [Admin – Users]
-      summary: User activity log
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserIdParam"
-      responses:
-        "200":
-          description: Activity log
-
-  # ==========================================================================
-  # ADMIN – ANALYTICS
-  # ==========================================================================
-
-  /api/admin/dashboard:
-    get:
-      tags: [Admin – Analytics]
-      summary: Key dashboard metrics
-      description: |
-        Returns MAU, new registrations, opportunity counts, email subscriptions,
-        and month-over-month growth rate. **Admin only.**
+      tags: [Admin]
+      summary: List users
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Dashboard metrics
-      summary: Get user activity log (saved opportunities)
-      operationId: adminGetUserActivity
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 20
-      responses:
-        "200":
-          description: Activity log
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  activity:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Opportunity"
-                  pagination:
-                    $ref: "#/components/schemas/Pagination"
-
-  # ---------------------------------------------------------------------------
-  # Admin – Analytics
-  # ---------------------------------------------------------------------------
-  /api/admin/analytics/usage:
-    get:
-      tags: [Admin – Analytics]
-      summary: Daily user registration trends
-      operationId: adminAnalyticsUsage
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: days
-          schema:
-            type: integer
-            default: 30
-            maximum: 365
-      responses:
-        "200":
-          description: Daily registration counts
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      users:
-                        type: object
-                      opportunities:
-                        type: object
-                      email:
-                        type: object
-
-  /api/admin/analytics/usage:
-    get:
-      tags: [Admin – Analytics]
-      summary: Daily/weekly usage trends
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: days
-          in: query
-          description: Number of days to look back (7–90)
-          schema:
-            type: integer
-            default: 30
-      responses:
-        "200":
-          description: Usage trend data
-
-  /api/admin/analytics/revenue:
-    get:
-      tags: [Admin – Analytics]
-      summary: Subscription revenue breakdown
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Revenue analytics
-
-  /api/admin/analytics/features:
-    get:
-      tags: [Admin – Analytics]
-      summary: Feature usage statistics
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Feature usage
-
-  /api/admin/analytics/search-trends:
-    get:
-      tags: [Admin – Analytics]
-      summary: Popular searches and NAICS codes
-                    example: true
-                  period:
-                    type: string
-                    example: "30d"
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        date:
-                          type: string
-                          example: "2024-01-15"
-                        registrations:
-                          type: integer
-                          example: 12
-
-  /api/admin/analytics/features:
-    get:
-      tags: [Admin – Analytics]
-      summary: Feature adoption statistics
-      operationId: adminAnalyticsFeatures
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Feature usage counts
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  featureUsage:
-                    type: object
-                    properties:
-                      naicsCodeConfiguration:
-                        type: integer
-                        example: 245
-                      emailAlertsEnabled:
-                        type: integer
-                        example: 189
-                      opportunitiesSaved:
-                        type: integer
-                        example: 891
-
-  /api/admin/analytics/search-trends:
-    get:
-      tags: [Admin – Analytics]
-      summary: Popular NAICS codes and search trends
-      operationId: adminSearchTrends
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 20
-      responses:
-        "200":
-          description: Search trend data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  naicsCodesByUsers:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        naicsCode:
-                          type: string
-                          example: "541512"
-                        userCount:
-                          type: integer
-                          example: 87
-                  savedOpportunityTrends:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        naicsCode:
-                          type: string
-                        totalSaves:
-                          type: integer
-                        uniqueOpportunities:
-                          type: integer
-
-  /api/admin/analytics/export:
-    get:
-      tags: [Admin – Analytics]
-      summary: Export user data as CSV or JSON
-      operationId: adminExport
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: format
-          schema:
-            type: string
-            enum: [json, csv]
-            default: json
-      responses:
-        "200":
-          description: Exported data file
-          content:
-            application/json:
-              schema:
-                type: object
-            text/csv:
-              schema:
-                type: string
-
-  /api/admin/analytics/revenue:
-    get:
-      tags: [Admin – Analytics]
-      summary: Revenue and subscription breakdown
-      description: Returns platform user stats and revenue indicators. Connect Stripe for live MRR/ARR data.
-      operationId: adminAnalyticsRevenue
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Search trends
-
-  # ==========================================================================
-  # ADMIN – SUBSCRIPTIONS
-  # ==========================================================================
-
-          description: Revenue analytics
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  revenue:
-                    type: object
-                    properties:
-                      note:
-                        type: string
-                      platformStats:
-                        type: object
-                        properties:
-                          totalUsers:
-                            type: integer
-                          activeUsers:
-                            type: integer
-                          newUsersLast30Days:
-                            type: integer
-                          inactiveRate:
-                            type: string
-                            example: "7.3%"
-                      generatedAt:
-                        type: string
-                        format: date-time
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-
-  # ---------------------------------------------------------------------------
-  # Admin – Subscriptions
-  # ---------------------------------------------------------------------------
-  /api/admin/subscriptions:
-    get:
-      tags: [Admin – Subscriptions]
-      summary: List all subscriptions
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/PageParam"
-        - $ref: "#/components/parameters/LimitParam"
-        - name: status
-          in: query
-          schema:
-            type: string
-            enum: [active, inactive]
-      responses:
-        "200":
-          description: Subscription list with MRR summary
-      operationId: adminListSubscriptions
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 20
-      responses:
-        "200":
-          description: Subscription list
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  subscriptions:
-                    type: array
-                    items:
-                      type: object
-                  pagination:
-                    $ref: "#/components/schemas/Pagination"
-
-  /api/admin/subscriptions/{userId}:
-    get:
-      tags: [Admin – Subscriptions]
-      summary: Get user subscription details
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-      summary: Get subscription details for a user
-      operationId: adminGetSubscription
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Subscription detail
-          description: Subscription details
-
-  /api/admin/subscriptions/{userId}/extend-trial:
-    post:
-      tags: [Admin – Subscriptions]
-      summary: Extend trial for a prospect
-      description: Re-activates the user account. Use this during demo calls.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-      summary: Extend trial period for a user
-      operationId: adminExtendTrial
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                days:
-                  type: integer
-                  default: 30
-                reason:
-                  type: string
-      responses:
-        "200":
-          description: Trial extended
-                  example: 15
-                  description: Number of additional trial days to grant
-                note:
-                  type: string
-                  example: "Extended for sales demo call on 2024-02-01"
-      responses:
-        "200":
-          description: Trial extended
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Trial extended by 15 days for jane@example.com."
-
-  /api/admin/subscriptions/{userId}/issue-refund:
-    post:
-      tags: [Admin – Subscriptions]
-      summary: Log a refund request
-      description: |
-        Records the refund request in the audit log.
-        Process the actual refund in the **Stripe Dashboard**.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-      summary: Record a refund (process in Stripe dashboard)
-      operationId: adminIssueRefund
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                amount:
-                  type: number
-                reason:
-                  type: string
-      responses:
-        "200":
-          description: Refund request logged
-
-  # ==========================================================================
-  # ADMIN – SYSTEM
-  # ==========================================================================
+          description: User list returned
 
   /api/admin/health/system:
     get:
-      tags: [Admin – System]
-      summary: Server metrics and uptime
-                  example: 79.00
-                reason:
-                  type: string
-                  example: "Customer dissatisfied with trial experience"
-      responses:
-        "200":
-          description: Refund recorded
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-
-  # ---------------------------------------------------------------------------
-  # Admin – Health
-  # ---------------------------------------------------------------------------
-  /api/admin/health/system:
-    get:
-      tags: [Admin – Health]
-      summary: Server system metrics
-      operationId: adminSystemHealth
+      tags: [Admin]
+      summary: System health
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: System health metrics
-          description: System metrics
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        enum: [healthy, degraded]
-                      uptime:
-                        type: object
-                      memory:
-                        type: object
-                      integrations:
-                        type: object
-
-  /api/admin/health/integrations:
-    get:
-      tags: [Admin – System]
-      summary: Integration status (SAM API, Stripe, email)
-                    example: true
-                  system:
-                    type: object
-                    properties:
-                      uptime:
-                        type: integer
-                        description: Seconds since server start
-                        example: 86400
-                      nodeVersion:
-                        type: string
-                        example: "v20.11.0"
-                      memory:
-                        type: object
-                      loadAverage:
-                        type: array
-                        items:
-                          type: number
-
-  /api/admin/health/integrations:
-    get:
-      tags: [Admin – Health]
-      summary: Integration connectivity status
-      operationId: adminIntegrationHealth
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Integration status
-
-  /api/admin/logs:
-    get:
-      tags: [Admin – System]
-      summary: System logs reference
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Log access instructions
-
-  /api/admin/system/restart:
-    post:
-      tags: [Admin – System]
-      summary: Initiate graceful server restart
-      description: |
-        Sends a `SIGTERM`-equivalent exit after flushing the response.
-        Your process manager (PM2 / Render) should restart automatically.
-          description: Integration statuses
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  integrations:
-                    type: object
-                    properties:
-                      mongodb:
-                        type: object
-                        properties:
-                          status:
-                            type: string
-                            enum: [connected, connecting, disconnected, unconfigured, error]
-                          message:
-                            type: string
-                      samApi:
-                        type: object
-                      stripe:
-                        type: object
-                      email:
-                        type: object
-
-  /api/admin/logs:
-    get:
-      tags: [Admin – Health]
-      summary: System logs (stub — use Datadog for production logs)
-      operationId: adminLogs
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 50
-        - in: query
-          name: level
-          schema:
-            type: string
-            enum: [error, warn, info, debug]
-      responses:
-        "200":
-          description: Log entries (see Datadog for full logs)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                  logs:
-                    type: array
-                    items:
-                      type: object
-
-  /api/admin/system/restart:
-    post:
-      tags: [Admin – Health]
-      summary: Graceful server restart
-      description: Sends an exit(0) signal; the process manager (Render, PM2, etc.) restarts the server automatically.
-      operationId: adminSystemRestart
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Restart initiated
-
-  # ==========================================================================
-  # SYSTEM
-  # ==========================================================================
-
-  /health:
-    get:
-      tags: [System]
-      summary: Health check (no auth required)
-      responses:
-        "200":
-          description: Server is up
-          description: Restart signal acknowledged
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok:
-                    type: boolean
-                  app:
-                    type: string
-                  env:
-                    type: string
-                  samConfigured:
-                    type: boolean
-                  mongoConfigured:
-                    type: boolean
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Restart signal sent. The server will restart momentarily."
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+          description: System health returned
