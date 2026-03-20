@@ -5,6 +5,7 @@
 @layer base {
   body {
     @apply bg-slate-50 text-slate-800 antialiased;
+  }
   html {
     font-family: "Inter", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -53,8 +54,6 @@
            shadow-sm hover:shadow
            transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2
-    @apply font-semibold py-2.5 px-6 rounded-lg
-           transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
     background: #14243a;
     color: #ffffff;
@@ -93,12 +92,7 @@
            shadow-sm
            transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-    @apply bg-white font-semibold py-2.5 px-6 rounded-lg
-           border transition-colors duration-150
-           focus:outline-none focus:ring-2 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
-    color: #14243a;
-    border-color: #c8d5e6;
   }
   .btn-secondary:hover:not(:disabled) {
     background: #edf3fb;
@@ -131,9 +125,8 @@
            shadow-sm
            transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-navy-500
-           appearance-none cursor-pointer;
-           focus:outline-none focus:ring-2
-           placeholder-slate-400 text-sm;
+           appearance-none cursor-pointer
+           placeholder-slate-400;
     border: 1px solid #c8d5e6;
     background: #fbfdff;
     color: #14243a;
@@ -219,9 +212,6 @@
     @apply flex items-center gap-2.5
            bg-emerald-600 text-white text-sm font-medium
            px-4 py-3 rounded-xl shadow-lg;
-    @apply bg-white rounded-xl p-6;
-    border: 1px solid rgba(20, 36, 58, 0.12);
-    box-shadow: 0 4px 16px rgba(20, 36, 58, 0.06);
   }
   .toast-error {
     @apply flex items-center gap-2.5

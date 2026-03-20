@@ -2,9 +2,9 @@ import React, { useState } from "react";
 
 const RECOMMENDATION_STYLE = {
   "Strong Bid":      { badge: "badge-green",  bar: "bg-emerald-500", label: "Strong Bid" },
-  "Bid with Review": { badge: "badge-blue",   bar: "bg-blue-500",   label: "Bid with Review" },
-  "Borderline":      { badge: "badge-yellow", bar: "bg-amber-500",  label: "Borderline" },
-  "No-Bid":          { badge: "badge-red",    bar: "bg-red-500",    label: "No-Bid" }
+  "Bid with Review": { badge: "badge-blue",   bar: "bg-blue-500",    label: "Bid with Review" },
+  "Borderline":      { badge: "badge-yellow", bar: "bg-amber-500",   label: "Borderline" },
+  "No-Bid":          { badge: "badge-red",    bar: "bg-red-500",     label: "No-Bid" }
 };
 
 function ScoreGauge({ score }) {

@@ -15,6 +15,13 @@ import emailRouter from "./backend/routes/email.js";
 import adminRouter from "./backend/routes/admin.js";
 import docsRouter from "./backend/routes/docs.js";
 import opportunityIntelligenceRouter from "./backend/routes/opportunityIntelligence.js";
+import erpRouter from "./backend/routes/erp.js";
+import workflowsRouter from "./backend/routes/workflows.js";
+import dashboardRouter from "./backend/routes/dashboard.js";
+import suppliersRouter from "./backend/routes/suppliers.js";
+import marginsRouter from "./backend/routes/margins.js";
+import capacityRouter from "./backend/routes/capacity.js";
+import mobileRouter from "./backend/routes/mobile.js";
 
 dotenv.config();
 
@@ -68,6 +75,13 @@ app.use("/api/email-preferences", apiLimiter, emailRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/docs", docsRouter);
 app.use("/api/opportunity-intelligence", opportunityIntelligenceRouter);
+app.use("/api/erp", apiLimiter, erpRouter);
+app.use("/api/workflows", apiLimiter, workflowsRouter);
+app.use("/api/dashboard", apiLimiter, dashboardRouter);
+app.use("/api/suppliers", apiLimiter, suppliersRouter);
+app.use("/api/margins", apiLimiter, marginsRouter);
+app.use("/api/capacity", apiLimiter, capacityRouter);
+app.use("/api/mobile", apiLimiter, mobileRouter);
 
 // Health check
 app.get("/health", (req, res) => {
