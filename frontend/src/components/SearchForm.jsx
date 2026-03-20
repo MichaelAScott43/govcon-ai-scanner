@@ -2,13 +2,6 @@ import React, { useState } from "react";
 import { opportunitiesApi } from "../utils/api.js";
 
 const SET_ASIDE_OPTIONS = [
-  { value: "", label: "Any" },
-  { value: "SBA", label: "Small Business" },
-  { value: "8A", label: "8(a)" },
-  { value: "HZC", label: "HUBZone" },
-  { value: "SDVOSBC", label: "SDVOSB" },
-  { value: "WOSB", label: "WOSB" },
-  { value: "EDWOSB", label: "EDWOSB" }
   { value: "", label: "Any Set-Aside" },
   { value: "SBA", label: "Small Business" },
   { value: "8A", label: "8(a) Program" },
@@ -94,7 +87,6 @@ export default function SearchForm({ onResults }) {
       const res = await opportunitiesApi.search(form);
       onResults(res.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Search failed. Please try again.");
       setError(err.response?.data?.error || "Search failed. Please check your filters and try again.");
       onResults(null);
     } finally {
@@ -104,10 +96,6 @@ export default function SearchForm({ onResults }) {
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">SAM.gov Opportunity Search</h2>
-
-      {error && (
-        <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="section-title">SAM.gov Opportunity Search</h2>
@@ -134,18 +122,6 @@ export default function SearchForm({ onResults }) {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label className="label">Keyword</label>
-            <input
-              className="input"
-              type="text"
-              name="keyword"
-              placeholder="cybersecurity, logistics…"
-              value={form.keyword}
-              onChange={handleChange}
-            />
-        {/* Row 1: Primary filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           <div className="sm:col-span-2 lg:col-span-1">
             <label className="label">Keyword / Title</label>
             <div className="relative">
@@ -168,7 +144,6 @@ export default function SearchForm({ onResults }) {
               className="input"
               type="text"
               name="naics"
-              placeholder="541512"
               placeholder="e.g. 541512"
               value={form.naics}
               onChange={handleChange}
@@ -180,7 +155,6 @@ export default function SearchForm({ onResults }) {
               className="input"
               type="text"
               name="psc"
-              placeholder="R425"
               placeholder="e.g. R425, D302"
               value={form.psc}
               onChange={handleChange}
@@ -188,7 +162,7 @@ export default function SearchForm({ onResults }) {
           </div>
         </div>
 
-        {/* Row 2: Date range */}
+        {/* Date range */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="label">Posted From</label>
@@ -211,33 +185,6 @@ export default function SearchForm({ onResults }) {
             />
           </div>
           <div>
-            <label className="label">Set-Aside</label>
-            <select
-              className="input"
-              name="setAside"
-              value={form.setAside}
-              onChange={handleChange}
-            >
-              {SET_ASIDE_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <button type="submit" disabled={loading} className="btn-primary">
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-              Searching…
-            </span>
-          ) : (
-            "Search SAM.gov"
-          )}
-        </button>
             <label className="label">Set-Aside Type</label>
             <div className="relative">
               <select
@@ -256,7 +203,6 @@ export default function SearchForm({ onResults }) {
             </div>
           </div>
 
-          {/* Expanded: Notice type */}
           {expanded && (
             <div>
               <label className="label">Notice Type</label>

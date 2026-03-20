@@ -1,14 +1,8 @@
-import React from "react";
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../utils/api.js";
 import { clearAuth, getUser } from "../utils/auth.js";
 
-export default function Header() {
-  const navigate = useNavigate();
-  const user = getUser();
-
-  async function handleLogout() {
 function UserAvatar({ user }) {
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
@@ -50,25 +44,9 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between shadow-lg">
-      {/* Left: BlackCrest logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-base leading-none">B</span>
-        </div>
-        <div className="hidden sm:block">
-          <div className="text-white font-bold text-xs leading-tight">BlackCrest</div>
-          <div className="text-amber-400 text-xs leading-tight">Sourcing Group</div>
-        </div>
-      </div>
-
-      {/* Center: App title */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
     <header className="bg-navy-950 border-b border-white/10 px-6 py-0 flex items-center justify-between h-16 sticky top-0 z-50">
       {/* ── Left: Brand ── */}
       <div className="flex items-center gap-3">
-        {/* Logo mark */}
         <div className="w-8 h-8 bg-gold-500 rounded-lg flex items-center justify-center shadow-sm shrink-0">
           <svg className="w-4 h-4 text-navy-950" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd"
@@ -103,55 +81,6 @@ export default function Header() {
 
       {/* ── Right: User menu ── */}
       <div className="flex items-center gap-3">
-        {/* Notification bell */}
-        <button className="btn-icon text-slate-400 hover:text-white hover:bg-white/10 rounded-md" aria-label="Notifications">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-    <header className="border-b px-6 py-3 flex items-center justify-between" style={{ background: "#ffffff", borderColor: "rgba(20,36,58,0.12)", boxShadow: "0 2px 8px rgba(20,36,58,0.06)" }}>
-      {/* Left: BlackCrest logo */}
-      <div className="flex items-center">
-        <img
-          src="/logos/blackcrest-logo.svg"
-          alt="BlackCrest Sourcing Group"
-          className="h-9 w-auto object-contain"
-        />
-      </div>
-
-      {/* Center: App title */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: "#14243a" }}>
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <span className="text-white font-semibold text-sm hidden sm:inline">GovCon AI Scanner</span>
-        <span className="font-semibold text-sm hidden sm:inline" style={{ color: "#14243a" }}>GovCon AI Scanner</span>
-      </div>
-
-      {/* Right: User info + logout */}
-      <div className="flex items-center gap-4">
-        {user && (
-          <span className="text-slate-400 text-xs hidden md:inline">
-          <span className="text-xs hidden md:inline" style={{ color: "#5d6b7c" }}>
-            {user.email}
-          </span>
-        )}
-        <button
-          onClick={handleLogout}
-          className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
-        >
-          Logout
-        </button>
-          className="text-sm font-medium transition-colors text-slate-500 hover:text-slate-800"
-          style={{ background: "none", border: "none", cursor: "pointer" }}
-        >
-          Logout
-        </button>
-
-        {/* Profile dropdown */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen((o) => !o)}
@@ -173,7 +102,6 @@ export default function Header() {
             </svg>
           </button>
 
-          {/* Dropdown menu */}
           {menuOpen && (
             <div className="absolute right-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-fade-in">
               <div className="px-4 py-2.5 border-b border-slate-100">
